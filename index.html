@@ -1,0 +1,2537 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="نسختي الأحسن" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>نسختي الأحسن — تتبع التمارين والستريك</title>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230F172A'/%3E%3Cpath d='M52 108 L78 130 L132 58' stroke='%2310B981' stroke-width='16' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+      background-color: #F4F6F9;
+      color: #0F172A;
+      overscroll-behavior-y: none;
+    }
+    .safe-bottom {
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.55rem);
+    }
+    .safe-top {
+      padding-top: calc(env(safe-area-inset-top, 0px) + 0.85rem);
+    }
+    .pro-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      box-shadow: 0 2px 14px rgba(15, 23, 42, 0.035);
+    }
+    .inset-panel {
+      background: #F8FAFC;
+      border: 1px solid rgba(226, 232, 240, 0.7);
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .ring-transition {
+      transition: stroke-dashoffset 0.35s ease;
+    }
+  </style>
+  <link rel="manifest" href="./manifest.json" />
+</head>
+<body class="min-h-screen bg-[#F4F6F9] text-slate-900 selection:bg-slate-900 selection:text-white">
+  <div class="max-w-lg mx-auto min-h-screen bg-[#F8FAFC] shadow-[0_0_40px_rgba(15,23,42,0.06)] border-x border-slate-200/70 flex flex-col relative">
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-slate-200/75 px-4 pb-3 safe-top">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-slate-950 text-white flex items-center justify-center shadow-sm ring-1 ring-slate-900/10">
+            <i data-lucide="trending-up" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+          <div>
+            <h1 class="text-[16px] font-extrabold tracking-tight leading-tight text-slate-950">نسختي الأحسن</h1>
+            <p id="header-date" class="text-[11px] text-slate-500 font-semibold mt-0.5"></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="header-streak-pill" type="button" class="flex items-center gap-1.5 bg-amber-50/90 border border-amber-200/80 text-amber-800 px-3 py-1.5 rounded-full text-xs font-extrabold active:scale-95 transition">
+            <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span id="header-streak-count" class="tabular-nums">0</span>
+          </button>
+          <button id="header-level-pill" type="button" class="flex items-center gap-1 bg-slate-900 text-white px-3 py-1.5 rounded-full text-xs font-bold active:scale-95 transition">
+            <span class="text-slate-300 text-[10px]">LVL</span>
+            <span id="header-level-num" class="tabular-nums">1</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sticky Active Rest Timer Banner (Timestamp-Accurate + Pro Ring) -->
+      <div id="rest-timer-bar" class="hidden mt-3 bg-slate-950 text-white rounded-2xl p-3.5 shadow-lg ring-1 ring-white/10">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="relative w-11 h-11 flex items-center justify-center">
+              <svg class="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
+                <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="3.5"></circle>
+                <circle id="timer-ring-circle" class="ring-transition" cx="22" cy="22" r="18" fill="none" stroke="#34D399" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="0"></circle>
+              </svg>
+              <i data-lucide="timer" class="w-4 h-4 text-emerald-400 absolute"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">وقت الراحة</p>
+              <p id="timer-display" class="text-2xl font-black tracking-wider tabular-nums leading-none">01:30</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="timer-minus-15" type="button" class="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold active:scale-95 transition">-15ث</button>
+            <button id="timer-plus-15" type="button" class="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold active:scale-95 transition">+15ث</button>
+            <button id="timer-toggle-btn" type="button" class="p-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 transition" aria-label="إيقاف مؤقت أو استكمال">
+              <i id="timer-toggle-icon" data-lucide="pause" class="w-4 h-4"></i>
+            </button>
+            <button id="timer-skip-btn" type="button" class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-extrabold active:scale-95 transition">جاهز</button>
+          </div>
+        </div>
+        <div class="mt-2.5 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+          <div id="timer-progress" class="h-full bg-emerald-400 transition-all duration-300 rounded-full" style="width: 100%;"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 px-4 pt-4 pb-28 overflow-x-hidden">
+      <!-- TAB 1: WORKOUT (اليوم) -->
+      <section id="tab-workout" class="space-y-4">
+        <!-- Smart Today's Suggestion & Overall Progress Hero -->
+        <div class="pro-card rounded-3xl p-4">
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/70 text-emerald-800 px-2.5 py-1 rounded-full text-[11px] font-bold mb-1.5">
+                <i data-lucide="sparkles" class="w-3 h-3 text-emerald-600"></i>
+                <span id="smart-day-reason">مقترح اليوم تلقائياً</span>
+              </div>
+              <h2 id="hero-day-title" class="text-lg font-black text-slate-950 truncate">—</h2>
+              <p id="hero-day-subtitle" class="text-xs text-slate-500 font-medium mt-0.5"></p>
+            </div>
+            <!-- Workout Progress Ring -->
+            <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+              <svg class="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="23" fill="none" stroke="#E2E8F0" stroke-width="5"></circle>
+                <circle id="workout-progress-ring" class="ring-transition" cx="28" cy="28" r="23" fill="none" stroke="#10B981" stroke-width="5" stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="144.5"></circle>
+              </svg>
+              <span id="workout-progress-pct" class="text-xs font-black text-slate-900 tabular-nums absolute">0%</span>
+            </div>
+          </div>
+
+          <!-- Day Switcher Strip -->
+          <div class="mt-3.5 pt-3 border-t border-slate-100">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-bold text-slate-400">تبديل تمرينة اليوم</span>
+              <button id="btn-sound-toggle" type="button" class="flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-slate-900 px-2 py-1 rounded-lg bg-slate-100/80 transition">
+                <i id="sound-icon" data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                <span id="sound-label">صوت التايمر</span>
+              </button>
+            </div>
+            <div id="day-selector-strip" class="flex gap-2 overflow-x-auto no-scrollbar pb-0.5"></div>
+          </div>
+        </div>
+
+        <!-- Active Gym Workout Container -->
+        <div id="gym-workout-container" class="space-y-4">
+          <!-- Exercise Strip with Per-Exercise Set Counts -->
+          <div class="pro-card rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-2 px-0.5">
+              <span class="text-xs font-extrabold text-slate-700">تمارين اليوم</span>
+              <span id="workout-sets-counter" class="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-0.5 rounded-full tabular-nums">0 / 0 مجموعة</span>
+            </div>
+            <div id="exercise-chips" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+          </div>
+
+          <!-- Active Exercise Focus Card -->
+          <div id="active-exercise-card" class="pro-card rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span id="current-set-badge" class="inline-flex items-center gap-1 text-[11px] font-extrabold bg-slate-900 text-white px-2.5 py-0.5 rounded-full tabular-nums">المجموعة 1 من 4</span>
+                  <button id="btn-adjust-target-sets" type="button" class="text-[11px] font-bold text-slate-500 hover:text-slate-900 underline underline-offset-2">تعديل العدد</button>
+                </div>
+                <h3 id="current-exercise-name" class="text-xl font-black text-slate-950 leading-tight truncate">—</h3>
+                <p id="current-exercise-last" class="text-xs text-slate-500 mt-1 font-semibold">آخر أداء: لم يُسجّل بعد</p>
+              </div>
+              <div id="current-exercise-pr-badge" class="hidden shrink-0 bg-amber-50 border border-amber-200/80 text-amber-800 px-2.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1">
+                <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span id="current-exercise-pr-text" class="tabular-nums"></span>
+              </div>
+            </div>
+
+            <!-- Visual Set Progress Bars (Working Sets Only) -->
+            <div id="set-progress-bars" class="flex gap-1.5"></div>
+
+            <!-- Working Set vs Warm-up Set Toggle -->
+            <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl">
+              <button id="btn-set-type-working" type="button" class="py-2 rounded-xl text-xs font-extrabold bg-white text-slate-950 shadow-xs transition">مجموعة فعلية</button>
+              <button id="btn-set-type-warmup" type="button" class="py-2 rounded-xl text-xs font-bold text-slate-500 transition">تسخين (Warm-up)</button>
+            </div>
+
+            <!-- Weight & Reps Steppers -->
+            <div class="grid grid-cols-1 gap-3">
+              <!-- Step 1: Weight -->
+              <div class="inset-panel rounded-2xl p-3.5">
+                <div class="flex items-center justify-between mb-2">
+                  <label for="input-weight" class="text-xs font-extrabold text-slate-700">1. الوزن (كجم)</label>
+                  <span id="autofill-hint" class="text-[11px] font-semibold text-slate-400">خطوة 2.5 كجم</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <button id="btn-weight-minus" type="button" class="w-12 h-12 rounded-xl bg-white border border-slate-200/90 text-slate-900 font-black text-xl flex items-center justify-center active:scale-95 transition shadow-xs">−</button>
+                  <input id="input-weight" type="number" step="0.5" min="0" inputmode="decimal" value="40" class="flex-1 h-12 bg-white border border-slate-200/90 rounded-xl text-center text-2xl font-black text-slate-950 tabular-nums focus:outline-none focus:ring-2 focus:ring-slate-900" />
+                  <button id="btn-weight-plus" type="button" class="w-12 h-12 rounded-xl bg-white border border-slate-200/90 text-slate-900 font-black text-xl flex items-center justify-center active:scale-95 transition shadow-xs">+</button>
+                </div>
+              </div>
+
+              <!-- Step 2: Reps -->
+              <div class="inset-panel rounded-2xl p-3.5">
+                <div class="flex items-center justify-between mb-2">
+                  <label for="input-reps" class="text-xs font-extrabold text-slate-700">2. العدات اللي جبتها</label>
+                  <span class="text-[11px] font-semibold text-slate-400">بعد إنهاء المجموعة</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <button id="btn-reps-minus" type="button" class="w-12 h-12 rounded-xl bg-white border border-slate-200/90 text-slate-900 font-black text-xl flex items-center justify-center active:scale-95 transition shadow-xs">−</button>
+                  <input id="input-reps" type="number" step="1" min="1" inputmode="numeric" value="10" class="flex-1 h-12 bg-white border border-slate-200/90 rounded-xl text-center text-2xl font-black text-slate-950 tabular-nums focus:outline-none focus:ring-2 focus:ring-slate-900" />
+                  <button id="btn-reps-plus" type="button" class="w-12 h-12 rounded-xl bg-white border border-slate-200/90 text-slate-900 font-black text-xl flex items-center justify-center active:scale-95 transition shadow-xs">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Rest Duration Presets -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-extrabold text-slate-600">3. راحة بعد المجموعة</span>
+                <span id="selected-rest-label" class="text-xs font-extrabold text-slate-900">90 ثانية</span>
+              </div>
+              <div id="rest-presets" class="grid grid-cols-4 gap-2">
+                <button type="button" data-rest="60" class="rest-preset-btn py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 active:scale-95 transition">60 ث</button>
+                <button type="button" data-rest="90" class="rest-preset-btn py-2 rounded-xl text-xs font-bold border border-slate-900 bg-slate-900 text-white active:scale-95 transition">90 ث</button>
+                <button type="button" data-rest="120" class="rest-preset-btn py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 active:scale-95 transition">2 د</button>
+                <button type="button" data-rest="180" class="rest-preset-btn py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 active:scale-95 transition">3 د</button>
+              </div>
+            </div>
+
+            <!-- Main Loop CTA -->
+            <button id="btn-log-set" type="button" class="w-full min-h-[54px] bg-slate-950 hover:bg-slate-800 text-white rounded-2xl font-extrabold text-[15px] flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+              <span id="btn-log-set-label">سجّل المجموعة وابدأ الراحة</span>
+            </button>
+
+            <!-- Persistent Quick Exercise Note -->
+            <div class="relative">
+              <div class="flex items-center gap-1.5 mb-1">
+                <i data-lucide="sticky-note" class="w-3.5 h-3.5 text-slate-400"></i>
+                <label for="input-exercise-note" class="text-[11px] font-bold text-slate-500">ملاحظة التمرين (تتحفظ للمرات الجاية)</label>
+              </div>
+              <input id="input-exercise-note" type="text" placeholder="مثال: الكرسي على رقم 4، مسكة واسعة..." class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900" />
+            </div>
+
+            <!-- Logged Sets For Current Exercise -->
+            <div class="pt-3 border-t border-slate-100">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="text-xs font-extrabold text-slate-500">سجل مجاميع التمرين</span>
+                <button id="btn-next-exercise" type="button" class="text-xs font-extrabold text-slate-900 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl flex items-center gap-1 transition">
+                  <span>التمرين التالي</span>
+                  <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div id="current-sets-list" class="space-y-2"></div>
+            </div>
+          </div>
+
+          <!-- Finish Workout Button -->
+          <button id="btn-finish-workout" type="button" class="w-full min-h-[54px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition">
+            <i data-lucide="flag" class="w-4 h-4"></i>
+            <span>إنهاء تمرينة اليوم وحفظ الستريك (+100 XP)</span>
+          </button>
+        </div>
+
+        <!-- Active Recovery Container (يوم راحة نشطة) -->
+        <div id="recovery-container" class="hidden space-y-4">
+          <div class="pro-card rounded-3xl p-5 space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-600">
+                <i data-lucide="footprints" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-black text-slate-950">يوم راحة نشطة</h3>
+                <p class="text-xs text-slate-500 font-medium">علّم على أي نشاط خفيف عملته النهاردة عشان تحافظ على الستريك</p>
+              </div>
+            </div>
+            <div id="recovery-checklist" class="space-y-2.5"></div>
+            <button id="btn-complete-recovery" type="button" class="w-full min-h-[54px] bg-slate-950 hover:bg-slate-800 text-white rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition">
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+              <span>تأكيد يوم الراحة النشطة (+40 XP)</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: STREAK & HABITS (الستريك والعادات) -->
+      <section id="tab-streak" class="hidden space-y-4">
+        <!-- All-Week Streak Card -->
+        <div class="pro-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-400">ستريك الالتزام الأسبوعي</span>
+              <div class="flex items-baseline gap-2 mt-0.5">
+                <span id="streak-big-number" class="text-4xl font-black text-slate-950 tabular-nums">0</span>
+                <span class="text-sm font-bold text-slate-600">يوم متتالي</span>
+              </div>
+            </div>
+            <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center">
+              <i data-lucide="flame" class="w-8 h-8 text-amber-500"></i>
+            </div>
+          </div>
+
+          <!-- 7-Day Week Strip -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-500">آخر 7 أيام (اضغط على يوم فائت لاسترجاعه)</span>
+              <span id="streak-best-label" class="text-xs font-bold text-slate-500">أطول ستريك: 0</span>
+            </div>
+            <div id="week-streak-strip" class="grid grid-cols-7 gap-1.5"></div>
+          </div>
+
+          <!-- 5 Monthly Restores -->
+          <div class="inset-panel rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="shield-check" class="w-4 h-4 text-slate-900"></i>
+                <span class="text-xs font-extrabold text-slate-800">محاولات استرجاع الستريك هذا الشهر</span>
+              </div>
+              <span id="restores-remaining-text" class="text-xs font-extrabold text-slate-900 bg-white px-2.5 py-1 rounded-full border border-slate-200 tabular-nums">5 / 5</span>
+            </div>
+            <div id="restores-dots" class="flex items-center gap-2"></div>
+            <button id="btn-restore-yesterday" type="button" class="w-full py-2.5 px-3 rounded-xl bg-white border border-slate-300 hover:bg-slate-900 hover:text-white hover:border-slate-900 text-slate-800 text-xs font-extrabold flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              <span id="btn-restore-label">استرجاع ستريك أمس (Restore)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Private Bad-Habit Red-Dot Calendar -->
+        <div class="pro-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 class="text-base font-black text-slate-950">تقويم الانضباط الخاص</h3>
+              <p class="text-xs text-slate-500 mt-0.5 font-medium">علامة حمراء فقط عند الوقوع في أي عادة سيئة — بدون تفاصيل</p>
+            </div>
+            <span id="clean-days-badge" class="shrink-0 text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/70 px-2.5 py-1 rounded-full">0 يوم نظيف</span>
+          </div>
+
+          <!-- Month-over-Month Comparison Strip -->
+          <div class="inset-panel rounded-2xl p-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <div>
+                <p class="text-[10px] font-bold text-slate-400">الشهر المعروض</p>
+                <p id="cal-cur-red-count" class="text-sm font-black text-slate-900 tabular-nums">0 أحمر</p>
+              </div>
+              <div class="h-6 w-px bg-slate-200"></div>
+              <div>
+                <p class="text-[10px] font-bold text-slate-400">الشهر اللي قبله</p>
+                <p id="cal-prev-red-count" class="text-sm font-black text-slate-600 tabular-nums">0 أحمر</p>
+              </div>
+            </div>
+            <span id="cal-month-trend" class="text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-slate-200/70 text-slate-700">نفس المعدل</span>
+          </div>
+
+          <!-- Today Discreet Toggle -->
+          <button id="btn-toggle-today-red" type="button" class="w-full min-h-[48px] rounded-2xl border-2 font-extrabold text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+            <span id="today-red-dot" class="w-3 h-3 rounded-full bg-red-500"></span>
+            <span id="today-red-text">تعليم اليوم باللون الأحمر</span>
+          </button>
+
+          <!-- Month Navigator -->
+          <div class="flex items-center justify-between pt-1">
+            <button id="cal-prev-month" type="button" class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 active:scale-95 transition" aria-label="الشهر السابق">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            <h4 id="cal-month-title" class="text-sm font-black text-slate-900"></h4>
+            <button id="cal-next-month" type="button" class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 active:scale-95 transition" aria-label="الشهر التالي">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Weekday Headers -->
+          <div class="grid grid-cols-7 gap-1 text-center">
+            <span class="text-[11px] font-bold text-slate-400 py-1">سبت</span>
+            <span class="text-[11px] font-bold text-slate-400 py-1">أحد</span>
+            <span class="text-[11px] font-bold text-slate-400 py-1">إثنين</span>
+            <span class="text-[11px] font-bold text-slate-400 py-1">ثلاثاء</span>
+            <span class="text-[11px] font-bold text-slate-400 py-1">أربعاء</span>
+            <span class="text-[11px] font-bold text-slate-400 py-1">خميس</span>
+            <span class="text-[11px] font-bold text-slate-400 py-1">جمعة</span>
+          </div>
+
+          <!-- Calendar Days Grid -->
+          <div id="habit-calendar-grid" class="grid grid-cols-7 gap-1.5"></div>
+          <p class="text-[11px] text-slate-400 text-center">اضغط على أي يوم في التقويم لإضافة أو إزالة العلامة الحمراء</p>
+        </div>
+      </section>
+
+      <!-- TAB 3: PROGRESS (التطور — نسختي الأحسن) -->
+      <section id="tab-progress" class="hidden space-y-4">
+        <!-- Hybrid Level & XP Card -->
+        <div class="bg-slate-950 text-white rounded-3xl p-5 shadow-md space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-semibold text-slate-400">مقياس تطورك</span>
+              <h2 id="progress-level-title" class="text-xl font-black mt-0.5">المستوى 1 — بداية الانضباط</h2>
+            </div>
+            <div class="px-3 py-1.5 rounded-2xl bg-white/10 text-emerald-400 font-extrabold text-sm tabular-nums">
+              <span id="progress-total-xp">0</span> XP
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1.5">
+              <span>التقدم للمستوى التالي</span>
+              <span id="progress-xp-fraction" class="tabular-nums font-bold">0 / 250 XP</span>
+            </div>
+            <div class="h-2.5 w-full bg-white/15 rounded-full overflow-hidden">
+              <div id="progress-xp-bar" class="h-full bg-emerald-400 rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+            <div class="bg-white/10 rounded-xl p-2">
+              <p class="text-[10px] text-slate-300">تمرينة كاملة</p>
+              <p class="text-xs font-extrabold text-emerald-400 mt-0.5">+100 XP</p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-2">
+              <p class="text-[10px] text-slate-300">رقم قياسي PR</p>
+              <p class="text-xs font-extrabold text-amber-400 mt-0.5">+30 XP</p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-2">
+              <p class="text-[10px] text-slate-300">راحة نشطة</p>
+              <p class="text-xs font-extrabold text-sky-400 mt-0.5">+40 XP</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strength KPIs (Working Sets Only) -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="pro-card rounded-2xl p-3.5 text-center">
+            <p class="text-[11px] font-bold text-slate-400">التمارين</p>
+            <p id="kpi-workouts" class="text-2xl font-black text-slate-950 mt-1 tabular-nums">0</p>
+          </div>
+          <div class="pro-card rounded-2xl p-3.5 text-center">
+            <p class="text-[11px] font-bold text-slate-400">مجاميع فعلية</p>
+            <p id="kpi-sets" class="text-2xl font-black text-slate-950 mt-1 tabular-nums">0</p>
+          </div>
+          <div class="pro-card rounded-2xl p-3.5 text-center">
+            <p class="text-[11px] font-bold text-slate-400">أعلى حجم (كجم)</p>
+            <p id="kpi-volume" class="text-2xl font-black text-slate-950 mt-1 tabular-nums">0</p>
+          </div>
+        </div>
+
+        <!-- Exercise Weight / 1RM / Volume Progression Chart -->
+        <div class="pro-card rounded-3xl p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-sm font-black text-slate-950">تطور الأداء حسب التمرين</h3>
+            <span id="chart-pr-pill" class="text-xs font-extrabold bg-amber-50 text-amber-800 px-2.5 py-1 rounded-full hidden">أعلى 1RM: 0 كجم</span>
+          </div>
+          <select id="progress-exercise-select" class="w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"></select>
+
+          <!-- Metric Mode Switcher -->
+          <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl">
+            <button type="button" data-metric="1rm" class="chart-metric-btn py-1.5 rounded-lg text-[11px] font-extrabold bg-white text-slate-950 shadow-xs transition">القوة (1RM)</button>
+            <button type="button" data-metric="max" class="chart-metric-btn py-1.5 rounded-lg text-[11px] font-bold text-slate-500 transition">أعلى وزن</button>
+            <button type="button" data-metric="volume" class="chart-metric-btn py-1.5 rounded-lg text-[11px] font-bold text-slate-500 transition">الحجم الكلي</button>
+          </div>
+
+          <div id="chart-wrapper" class="relative h-60 w-full">
+            <canvas id="weight-chart"></canvas>
+          </div>
+          <div id="chart-empty-state" class="hidden py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <i data-lucide="dumbbell" class="w-7 h-7 text-slate-300 mx-auto mb-2"></i>
+            <p class="text-xs font-extrabold text-slate-500">لسه مسجلتش مجاميع فعلية للتمرين ده</p>
+            <p class="text-[11px] text-slate-400 mt-1">أول ما تسجل مجموعتك في تبويب "اليوم" الجراف هيظهر هنا فوراً</p>
+          </div>
+
+          <!-- History List For Selected Exercise -->
+          <div id="exercise-history-list" class="space-y-2 pt-2 border-t border-slate-100"></div>
+        </div>
+      </section>
+
+      <!-- TAB 4: SPLIT MANAGER & SCHEDULE MODE (جدولي) -->
+      <section id="tab-split" class="hidden space-y-4">
+        <!-- Smart Today Detection Mode Card -->
+        <div class="pro-card rounded-3xl p-4 space-y-3">
+          <div>
+            <h2 class="text-sm font-black text-slate-950">كيف يحدد التطبيق تمرينة اليوم؟</h2>
+            <p class="text-xs text-slate-500 mt-0.5">اختر النظام الأنسب لجدولك المتغير</p>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl">
+            <button id="mode-btn-rotation" type="button" class="py-2 rounded-xl text-xs font-extrabold transition">تلقائي بالترتيب</button>
+            <button id="mode-btn-weekly" type="button" class="py-2 rounded-xl text-xs font-extrabold transition">حسب أيام الأسبوع</button>
+          </div>
+          <p id="schedule-mode-desc" class="text-[11px] text-slate-500 leading-relaxed bg-slate-50 rounded-xl p-2.5 border border-slate-100"></p>
+          <div id="weekly-mapper-container" class="hidden space-y-2 pt-1"></div>
+        </div>
+
+        <!-- Split Days Header -->
+        <div class="flex items-center justify-between pt-1">
+          <div>
+            <h2 class="text-base font-black text-slate-950">أيام وتمارين الجدول</h2>
+            <p class="text-xs text-slate-500">حدد عدد المجاميع ووقت الراحة لكل تمرين</p>
+          </div>
+          <button id="btn-add-day-modal" type="button" class="px-3.5 py-2 rounded-xl bg-slate-950 text-white text-xs font-extrabold flex items-center gap-1 active:scale-95 transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>يوم جديد</span>
+          </button>
+        </div>
+
+        <div id="split-editor-list" class="space-y-3"></div>
+
+        <!-- Active Recovery Editor -->
+        <div class="pro-card rounded-3xl p-4 space-y-3">
+          <h3 class="text-sm font-black text-slate-950">أنشطة يوم الراحة النشطة</h3>
+          <div id="recovery-editor-list" class="space-y-2"></div>
+          <div class="flex gap-2">
+            <input id="input-new-recovery" type="text" placeholder="مثال: سباحة أو مشي 20 دقيقة" class="flex-1 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900" />
+            <button id="btn-add-recovery-item" type="button" class="px-3.5 h-10 rounded-xl bg-slate-950 text-white text-xs font-bold active:scale-95 transition">إضافة</button>
+          </div>
+        </div>
+
+        <!-- Offline Backup & Restore -->
+        <div class="pro-card rounded-3xl p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="hard-drive-download" class="w-4 h-4 text-slate-700"></i>
+              <h3 class="text-sm font-black text-slate-950">النسخ الاحتياطي (أوفلاين)</h3>
+            </div>
+            <span id="backup-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">لم يتم النسخ بعد</span>
+          </div>
+          <p class="text-xs text-slate-500 leading-relaxed">بياناتك محفوظة على جهازك. خُد نسخة احتياطية مرة أسبوعياً عشان تضمن إن أرقامك متضيعش لو فضّيت بيانات Safari.</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-export-data" type="button" class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>تصدير نسخة</span>
+            </button>
+            <label class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+              <span>استيراد نسخة</span>
+              <input id="input-import-data" type="file" accept="application/json" class="hidden" />
+            </label>
+          </div>
+          <button id="btn-reset-data-modal" type="button" class="w-full py-2 rounded-xl text-red-600 hover:bg-red-50 text-xs font-bold transition">مسح كل السجلات والبدء من جديد</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Tab Navigation -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-white/95 backdrop-blur-xl border-t border-slate-200/80 px-2 pt-2 safe-bottom z-30">
+      <div class="grid grid-cols-4 gap-1">
+        <button type="button" data-tab="workout" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-950 bg-slate-100 font-extrabold transition">
+          <i data-lucide="dumbbell" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[11px]">اليوم</span>
+        </button>
+        <button type="button" data-tab="streak" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400 font-semibold transition">
+          <i data-lucide="flame" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[11px]">الستريك</span>
+        </button>
+        <button type="button" data-tab="progress" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400 font-semibold transition">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[11px]">التطور</span>
+        </button>
+        <button type="button" data-tab="split" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400 font-semibold transition">
+          <i data-lucide="sliders-horizontal" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[11px]">جدولي</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-slate-950 text-white px-4 py-2.5 rounded-2xl text-xs font-extrabold shadow-xl opacity-0 pointer-events-none transition-all duration-300 max-w-[90vw] text-center"></div>
+
+  <!-- In-Page Modal -->
+  <div id="modal-backdrop" class="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div id="modal-box" class="bg-white rounded-3xl w-full max-w-sm p-5 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center justify-between">
+        <h3 id="modal-title" class="text-base font-black text-slate-950"></h3>
+        <button id="modal-close" type="button" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="modal-body" class="space-y-3"></div>
+      <div id="modal-actions" class="flex gap-2 pt-1"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = 'better_self_pwa_v3';
+
+      const WEEKDAYS_AR = [
+        { idx: 6, label: 'السبت' },
+        { idx: 0, label: 'الأحد' },
+        { idx: 1, label: 'الإثنين' },
+        { idx: 2, label: 'الثلاثاء' },
+        { idx: 3, label: 'الأربعاء' },
+        { idx: 4, label: 'الخميس' },
+        { idx: 5, label: 'الجمعة' }
+      ];
+
+      const DEFAULT_STATE = {
+        scheduleMode: 'rotation',
+        weeklySchedule: {
+          6: 'back',
+          0: 'chest',
+          1: 'recovery',
+          2: 'legs',
+          3: 'back',
+          4: 'chest',
+          5: 'recovery'
+        },
+        splits: [
+          {
+            id: 'back',
+            name: 'ضهر وباي',
+            exercises: [
+              { id: 'ex_lat', name: 'Lat Pulldown', targetSets: 4, defaultRest: 90 },
+              { id: 'ex_row', name: 'Seated Cable Row', targetSets: 4, defaultRest: 90 },
+              { id: 'ex_dbrow', name: 'One-Arm Dumbbell Row', targetSets: 3, defaultRest: 90 },
+              { id: 'ex_curl', name: 'Dumbbell Bicep Curl', targetSets: 3, defaultRest: 60 }
+            ]
+          },
+          {
+            id: 'chest',
+            name: 'صدر وتراي',
+            exercises: [
+              { id: 'ex_bench', name: 'Incline Dumbbell Press', targetSets: 4, defaultRest: 120 },
+              { id: 'ex_fly', name: 'Cable Chest Fly', targetSets: 3, defaultRest: 60 },
+              { id: 'ex_tri', name: 'Tricep Pushdown', targetSets: 3, defaultRest: 60 }
+            ]
+          },
+          {
+            id: 'legs',
+            name: 'رجل وكتف',
+            exercises: [
+              { id: 'ex_squat', name: 'Leg Press', targetSets: 4, defaultRest: 120 },
+              { id: 'ex_rdl', name: 'Romanian Deadlift', targetSets: 4, defaultRest: 120 },
+              { id: 'ex_latr', name: 'Lateral Raises', targetSets: 4, defaultRest: 60 }
+            ]
+          }
+        ],
+        recoveryItems: [
+          'إطالات واستريتشات 15 دقيقة',
+          'مشي 30 دقيقة في الهوا',
+          'تمارين مرونة (Mobility)'
+        ],
+        exerciseNotes: {}, // { exerciseId: string }
+        activityLog: {},
+        habitRedDays: {},
+        monthlyRestores: {},
+        draftSets: {},
+        draftRecoveryChecked: [],
+        xp: 0,
+        soundEnabled: true,
+        lastBackupTs: null
+      };
+
+      let state = loadState();
+      let activeTab = 'workout';
+
+      const smartRec = getSmartTodaySuggestion();
+      let selectedDayId = smartRec.dayId;
+      let isManualOverride = false;
+      let selectedExerciseId = getFirstExerciseId(selectedDayId);
+      let selectedRestSec = getExerciseDefaultRest(selectedDayId, selectedExerciseId);
+      let currentSetIsWarmup = false;
+      let chartMetricMode = '1rm'; // '1rm' | 'max' | 'volume'
+
+      // Calendar view state
+      const now = new Date();
+      let calYear = now.getFullYear();
+      let calMonth = now.getMonth();
+
+      // Timestamp-accurate Timer state
+      let timerInterval = null;
+      let timerTotalSec = 90;
+      let timerEndTimeMs = 0;
+      let timerRemainingSec = 0;
+      let timerPaused = false;
+      let wakeLockSentinel = null;
+      let weightChartInstance = null;
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('better_self_pwa_v2') || localStorage.getItem('better_self_pwa_v1');
+          if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+          const parsed = JSON.parse(raw);
+          const merged = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), parsed);
+          merged.splits.forEach((sp) => {
+            sp.exercises.forEach((ex) => {
+              if (!ex.targetSets || ex.targetSets < 1) ex.targetSets = 4;
+            });
+          });
+          if (!merged.exerciseNotes) merged.exerciseNotes = {};
+          return merged;
+        } catch (e) {
+          return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+      }
+
+      function getFirstExerciseId(dayId) {
+        const sp = state.splits.find((s) => s.id === dayId);
+        return sp && sp.exercises[0] ? sp.exercises[0].id : null;
+      }
+
+      function getExerciseDefaultRest(dayId, exId) {
+        const sp = state.splits.find((s) => s.id === dayId);
+        const ex = sp ? sp.exercises.find((e) => e.id === exId) : null;
+        return ex && ex.defaultRest ? ex.defaultRest : 90;
+      }
+
+      function calcEpley1RM(weight, reps) {
+        const w = Number(weight) || 0;
+        const r = Number(reps) || 0;
+        if (w <= 0 || r <= 0) return 0;
+        if (r === 1) return w;
+        return Math.round(w * (1 + r / 30) * 10) / 10;
+      }
+
+      function getSmartTodaySuggestion() {
+        const todayJsDay = new Date().getDay();
+        const todayArName = (WEEKDAYS_AR.find((w) => w.idx === todayJsDay) || { label: 'اليوم' }).label;
+
+        if (state.scheduleMode === 'weekly') {
+          const assigned = state.weeklySchedule[todayJsDay];
+          if (assigned === 'recovery') {
+            return { dayId: 'recovery', reason: `حسب جدول يوم ${todayArName}` };
+          }
+          const exists = state.splits.find((s) => s.id === assigned);
+          if (exists) {
+            return { dayId: exists.id, reason: `حسب جدول يوم ${todayArName}` };
+          }
+        }
+
+        const workoutDates = Object.keys(state.activityLog)
+          .sort()
+          .reverse()
+          .filter((k) => state.activityLog[k] && state.activityLog[k].type === 'workout');
+
+        if (workoutDates.length === 0) {
+          const first = state.splits[0] ? state.splits[0].id : 'recovery';
+          return { dayId: first, reason: 'بداية دورة جدولك (تلقائي)' };
+        }
+
+        const todayKey = getTodayKey();
+        const latestKey = workoutDates[0];
+        const latestEntry = state.activityLog[latestKey];
+
+        if (latestKey === todayKey && state.splits.some((s) => s.id === latestEntry.splitId)) {
+          return { dayId: latestEntry.splitId, reason: 'تمرينة اليوم المُسجلة' };
+        }
+
+        const lastIdx = state.splits.findIndex((s) => s.id === latestEntry.splitId);
+        if (lastIdx >= 0 && state.splits.length > 0) {
+          const nextSplit = state.splits[(lastIdx + 1) % state.splits.length];
+          return {
+            dayId: nextSplit.id,
+            reason: `عليها الدور بعد (${latestEntry.splitName || 'آخر تمرينة'})`
+          };
+        }
+
+        return {
+          dayId: state.splits[0] ? state.splits[0].id : 'recovery',
+          reason: 'مقترح تلقائياً بالترتيب'
+        };
+      }
+
+      function formatDateKey(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(dateObj.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+
+      function getTodayKey() {
+        return formatDateKey(new Date());
+      }
+
+      function getMonthKey(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        return `${y}-${m}`;
+      }
+
+      function getDateOffsetKey(daysBack) {
+        const d = new Date();
+        d.setHours(12, 0, 0, 0);
+        d.setDate(d.getDate() - daysBack);
+        return formatDateKey(d);
+      }
+
+      function showToast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.remove('opacity-0', '-translate-y-2');
+        el.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(el._t);
+        el._t = setTimeout(() => {
+          el.classList.remove('opacity-100', 'translate-y-0');
+          el.classList.add('opacity-0', '-translate-y-2');
+        }, 2600);
+      }
+
+      function playBeep() {
+        if (!state.soundEnabled) return;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          [0, 0.22, 0.44].forEach((offset) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime + offset);
+            gain.gain.setValueAtTime(0.18, ctx.currentTime + offset);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.16);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + offset);
+            osc.stop(ctx.currentTime + offset + 0.17);
+          });
+        } catch (e) {}
+      }
+
+      async function requestWakeLock() {
+        try {
+          if ('wakeLock' in navigator && !wakeLockSentinel) {
+            wakeLockSentinel = await navigator.wakeLock.request('screen');
+            wakeLockSentinel.addEventListener('release', () => {
+              wakeLockSentinel = null;
+            });
+          }
+        } catch (e) {}
+      }
+
+      function releaseWakeLock() {
+        try {
+          if (wakeLockSentinel) {
+            wakeLockSentinel.release();
+            wakeLockSentinel = null;
+          }
+        } catch (e) {}
+      }
+
+      // Level & XP Calculations
+      const LEVEL_TITLES = [
+        'بداية الانضباط',
+        'في الطريق الصح',
+        'ثابت على المبدأ',
+        'بناء العادة',
+        'قوة وإصرار',
+        'نسخة أقوى',
+        'وحش الالتزام',
+        'أسطورة التطور'
+      ];
+
+      function getLevelInfo(xp) {
+        const xpPerLevel = 250;
+        const level = Math.floor(xp / xpPerLevel) + 1;
+        const currentInLevel = xp % xpPerLevel;
+        const title = LEVEL_TITLES[Math.min(level - 1, LEVEL_TITLES.length - 1)];
+        const pct = Math.min(100, Math.round((currentInLevel / xpPerLevel) * 100));
+        return { level, currentInLevel, xpPerLevel, title, pct };
+      }
+
+      // Streak Calculations
+      function calculateStreak() {
+        let current = 0;
+        const todayKey = getTodayKey();
+        const hasToday = Boolean(state.activityLog[todayKey]);
+        let offset = hasToday ? 0 : 1;
+
+        while (true) {
+          const key = getDateOffsetKey(offset);
+          if (state.activityLog[key]) {
+            current++;
+            offset++;
+          } else {
+            break;
+          }
+        }
+
+        const keys = Object.keys(state.activityLog).sort();
+        let best = 0;
+        let run = 0;
+        let prevDate = null;
+        keys.forEach((k) => {
+          const parts = k.split('-').map(Number);
+          const dt = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+          if (prevDate) {
+            const diffDays = Math.round((dt - prevDate) / 86400000);
+            run = diffDays === 1 ? run + 1 : 1;
+          } else {
+            run = 1;
+          }
+          if (run > best) best = run;
+          prevDate = dt;
+        });
+
+        return { current, best: Math.max(best, current) };
+      }
+
+      function getRestoresUsedThisMonth() {
+        const mk = getMonthKey(new Date());
+        return state.monthlyRestores[mk] || 0;
+      }
+
+      // Working-sets-only history for fair progression tracking
+      function getExerciseHistory(exerciseId) {
+        const sessions = [];
+        Object.keys(state.activityLog)
+          .sort()
+          .forEach((dateKey) => {
+            const entry = state.activityLog[dateKey];
+            if (entry && entry.type === 'workout' && Array.isArray(entry.sets)) {
+              const exSets = entry.sets.filter((s) => s.exerciseId === exerciseId && !s.isWarmup);
+              if (exSets.length > 0) {
+                const maxWeight = Math.max(...exSets.map((s) => Number(s.weight) || 0));
+                const max1RM = Math.max(...exSets.map((s) => calcEpley1RM(s.weight, s.reps)));
+                const volume = Math.round(exSets.reduce((acc, s) => acc + (Number(s.weight) || 0) * (Number(s.reps) || 0), 0));
+                const bestSet = exSets.reduce((a, b) => (calcEpley1RM(b.weight, b.reps) > calcEpley1RM(a.weight, a.reps) ? b : a), exSets[0]);
+                sessions.push({ dateKey, maxWeight, max1RM, volume, bestSet, sets: exSets });
+              }
+            }
+          });
+        return sessions;
+      }
+
+      function getExercisePR1RM(exerciseId) {
+        let best = 0;
+        const hist = getExerciseHistory(exerciseId);
+        hist.forEach((h) => {
+          if (h.max1RM > best) best = h.max1RM;
+        });
+        const draft = (state.draftSets[exerciseId] || []).filter((s) => !s.isWarmup);
+        draft.forEach((s) => {
+          const rm = calcEpley1RM(s.weight, s.reps);
+          if (rm > best) best = rm;
+        });
+        return best;
+      }
+
+      function getExerciseMaxWeight(exerciseId) {
+        let maxW = 0;
+        const hist = getExerciseHistory(exerciseId);
+        hist.forEach((h) => {
+          if (h.maxWeight > maxW) maxW = h.maxWeight;
+        });
+        const draft = (state.draftSets[exerciseId] || []).filter((s) => !s.isWarmup);
+        draft.forEach((s) => {
+          if (Number(s.weight) > maxW) maxW = Number(s.weight);
+        });
+        return maxW;
+      }
+
+      // Auto-fill Weight & Reps from today's last set OR last session's best set
+      function autoFillInputsForExercise(exerciseId) {
+        const weightInp = document.getElementById('input-weight');
+        const repsInp = document.getElementById('input-reps');
+        const hintEl = document.getElementById('autofill-hint');
+
+        const todaySets = (state.draftSets[exerciseId] || []).filter((s) => !s.isWarmup);
+        if (todaySets.length > 0) {
+          const lastToday = todaySets[todaySets.length - 1];
+          weightInp.value = lastToday.weight;
+          repsInp.value = lastToday.reps;
+          hintEl.textContent = 'تعبئة تلقائية من آخر مجموعة';
+          return;
+        }
+
+        const hist = getExerciseHistory(exerciseId);
+        if (hist.length > 0) {
+          const lastPrev = hist[hist.length - 1].bestSet;
+          weightInp.value = lastPrev.weight;
+          repsInp.value = lastPrev.reps;
+          hintEl.textContent = 'تعبئة تلقائية من آخر جلسة ✓';
+          return;
+        }
+
+        weightInp.value = 40;
+        repsInp.value = 10;
+        hintEl.textContent = 'خطوة 2.5 كجم';
+      }
+
+      // Timestamp-Accurate Rest Timer Engine (survives iPhone screen lock / app switch)
+      function syncTimerFromClock() {
+        if (!timerInterval || timerPaused) return;
+        const diffMs = timerEndTimeMs - Date.now();
+        if (diffMs <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerRemainingSec = 0;
+          updateTimerUI();
+          playBeep();
+          releaseWakeLock();
+          showToast('انتهى وقت الراحة! ادخل المجموعة الجاية 💪');
+          setTimeout(() => {
+            if (timerRemainingSec === 0 && !timerInterval) {
+              document.getElementById('rest-timer-bar').classList.add('hidden');
+            }
+          }, 2500);
+        } else {
+          timerRemainingSec = Math.ceil(diffMs / 1000);
+          updateTimerUI();
+        }
+      }
+
+      function startRestTimer(seconds) {
+        clearInterval(timerInterval);
+        timerTotalSec = Math.max(10, Number(seconds) || 90);
+        timerRemainingSec = timerTotalSec;
+        timerEndTimeMs = Date.now() + timerTotalSec * 1000;
+        timerPaused = false;
+        document.getElementById('rest-timer-bar').classList.remove('hidden');
+        requestWakeLock();
+        updateTimerUI();
+        timerInterval = setInterval(syncTimerFromClock, 500);
+      }
+
+      function stopRestTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerRemainingSec = 0;
+        timerEndTimeMs = 0;
+        timerPaused = false;
+        releaseWakeLock();
+        document.getElementById('rest-timer-bar').classList.add('hidden');
+      }
+
+      function updateTimerUI() {
+        const mins = Math.floor(timerRemainingSec / 60);
+        const secs = timerRemainingSec % 60;
+        const disp = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        document.getElementById('timer-display').textContent = disp;
+        const pct = timerTotalSec > 0 ? Math.max(0, Math.min(100, (timerRemainingSec / timerTotalSec) * 100)) : 0;
+        document.getElementById('timer-progress').style.width = pct + '%';
+
+        const ring = document.getElementById('timer-ring-circle');
+        if (ring) {
+          const circumference = 113.1;
+          ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
+        }
+
+        const iconEl = document.getElementById('timer-toggle-icon');
+        if (iconEl) {
+          iconEl.setAttribute('data-lucide', timerPaused ? 'play' : 'pause');
+          lucide.createIcons();
+        }
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && timerInterval && !timerPaused) {
+          syncTimerFromClock();
+        }
+      });
+
+      // Modal Helpers
+      function openModal(title, bodyHtml, actions) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-body').innerHTML = bodyHtml;
+        const actionsEl = document.getElementById('modal-actions');
+        actionsEl.innerHTML = '';
+        actions.forEach((act) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = act.className;
+          btn.textContent = act.label;
+          btn.addEventListener('click', act.onClick);
+          actionsEl.appendChild(btn);
+        });
+        const bd = document.getElementById('modal-backdrop');
+        bd.classList.remove('hidden');
+        bd.classList.add('flex');
+        lucide.createIcons();
+      }
+
+      function closeModal() {
+        const bd = document.getElementById('modal-backdrop');
+        bd.classList.add('hidden');
+        bd.classList.remove('flex');
+      }
+
+      // Render Header
+      function renderHeader() {
+        const today = new Date();
+        const arDate = today.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+        document.getElementById('header-date').textContent = arDate;
+
+        const streakInfo = calculateStreak();
+        document.getElementById('header-streak-count').textContent = streakInfo.current;
+
+        const lvl = getLevelInfo(state.xp);
+        document.getElementById('header-level-num').textContent = lvl.level;
+
+        const soundIcon = document.getElementById('sound-icon');
+        const soundLabel = document.getElementById('sound-label');
+        soundIcon.setAttribute('data-lucide', state.soundEnabled ? 'volume-2' : 'volume-x');
+        soundLabel.textContent = state.soundEnabled ? 'صوت التايمر' : 'صامت';
+      }
+
+      // Render Tab 1: Workout
+      function renderWorkoutTab(shouldAutoFill) {
+        const rec = getSmartTodaySuggestion();
+        const reasonEl = document.getElementById('smart-day-reason');
+        const heroTitleEl = document.getElementById('hero-day-title');
+        const heroSubEl = document.getElementById('hero-day-subtitle');
+        const ringEl = document.getElementById('workout-progress-ring');
+        const pctEl = document.getElementById('workout-progress-pct');
+
+        const strip = document.getElementById('day-selector-strip');
+        strip.innerHTML = '';
+
+        state.splits.forEach((split) => {
+          const isSelected = selectedDayId === split.id;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold border transition active:scale-95 ${
+            isSelected
+              ? 'bg-slate-950 text-white border-slate-950 shadow-xs'
+              : 'bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100'
+          }`;
+          btn.textContent = split.name;
+          btn.addEventListener('click', () => {
+            selectedDayId = split.id;
+            isManualOverride = split.id !== rec.dayId;
+            selectedExerciseId = split.exercises[0] ? split.exercises[0].id : null;
+            if (split.exercises[0]) selectedRestSec = split.exercises[0].defaultRest || 90;
+            currentSetIsWarmup = false;
+            renderWorkoutTab(true);
+          });
+          strip.appendChild(btn);
+        });
+
+        const recBtn = document.createElement('button');
+        recBtn.type = 'button';
+        const isRec = selectedDayId === 'recovery';
+        recBtn.className = `shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold border transition active:scale-95 flex items-center gap-1.5 ${
+          isRec
+            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+            : 'bg-emerald-50/70 text-emerald-800 border-emerald-200/80 hover:bg-emerald-50'
+        }`;
+        recBtn.innerHTML = '<i data-lucide="footprints" class="w-3.5 h-3.5"></i><span>راحة نشطة</span>';
+        recBtn.addEventListener('click', () => {
+          selectedDayId = 'recovery';
+          isManualOverride = 'recovery' !== rec.dayId;
+          renderWorkoutTab(false);
+        });
+        strip.appendChild(recBtn);
+
+        const gymCont = document.getElementById('gym-workout-container');
+        const recCont = document.getElementById('recovery-container');
+
+        if (selectedDayId === 'recovery') {
+          gymCont.classList.add('hidden');
+          recCont.classList.remove('hidden');
+          reasonEl.textContent = isManualOverride ? 'اختيار يدوي لليوم' : rec.reason;
+          heroTitleEl.textContent = 'يوم راحة نشطة';
+          const doneCount = state.draftRecoveryChecked.length;
+          const totalRec = Math.max(1, state.recoveryItems.length);
+          const pct = Math.min(100, Math.round((doneCount / totalRec) * 100));
+          heroSubEl.textContent = `اخترت ${doneCount} من ${state.recoveryItems.length} أنشطة استشفاء`;
+          pctEl.textContent = pct + '%';
+          ringEl.style.strokeDashoffset = 144.5 - (pct / 100) * 144.5;
+          renderRecoveryChecklist();
+          lucide.createIcons();
+          return;
+        }
+
+        gymCont.classList.remove('hidden');
+        recCont.classList.add('hidden');
+
+        const currentSplit = state.splits.find((s) => s.id === selectedDayId) || state.splits[0];
+        if (!currentSplit) return;
+
+        let currentEx = currentSplit.exercises.find((e) => e.id === selectedExerciseId);
+        if (!currentEx && currentSplit.exercises.length > 0) {
+          currentEx = currentSplit.exercises[0];
+          selectedExerciseId = currentEx.id;
+        }
+
+        // Count WORKING sets only against targetSets
+        let totalWorkingSets = 0;
+        let totalTargetSets = 0;
+        currentSplit.exercises.forEach((ex) => {
+          const wSets = (state.draftSets[ex.id] || []).filter((s) => !s.isWarmup).length;
+          totalWorkingSets += wSets;
+          totalTargetSets += Number(ex.targetSets) || 4;
+        });
+
+        const completionPct = totalTargetSets > 0 ? Math.min(100, Math.round((totalWorkingSets / totalTargetSets) * 100)) : 0;
+        reasonEl.textContent = isManualOverride ? 'اختيار يدوي لليوم' : rec.reason;
+        heroTitleEl.textContent = `تمرينة ${currentSplit.name}`;
+        heroSubEl.textContent = `${currentSplit.exercises.length} تمارين • ${totalWorkingSets} من ${totalTargetSets} مجموعة فعلية`;
+        pctEl.textContent = completionPct + '%';
+        ringEl.style.strokeDashoffset = 144.5 - (completionPct / 100) * 144.5;
+
+        document.getElementById('workout-sets-counter').textContent = `${totalWorkingSets} / ${totalTargetSets} مجموعة`;
+
+        // Exercise chips
+        const chipsEl = document.getElementById('exercise-chips');
+        chipsEl.innerHTML = '';
+        currentSplit.exercises.forEach((ex, idx) => {
+          const done = (state.draftSets[ex.id] || []).filter((s) => !s.isWarmup).length;
+          const target = Number(ex.targetSets) || 4;
+          const isComplete = done >= target;
+          const active = currentEx && currentEx.id === ex.id;
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = `shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold border transition active:scale-95 flex items-center gap-2 ${
+            active
+              ? 'bg-slate-950 text-white border-slate-950 shadow-xs'
+              : isComplete
+              ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+              : 'bg-slate-50 text-slate-700 border-slate-200/80'
+          }`;
+          chip.innerHTML = `
+            <span>${idx + 1}. ${ex.name}</span>
+            <span class="px-1.5 py-0.5 rounded-md text-[10px] tabular-nums ${
+              active
+                ? isComplete
+                  ? 'bg-emerald-500 text-slate-950'
+                  : 'bg-white/15 text-white'
+                : isComplete
+                ? 'bg-emerald-600 text-white'
+                : 'bg-slate-200/80 text-slate-600'
+            }">${isComplete ? '✓' : `${done}/${target}`}</span>
+          `;
+          chip.addEventListener('click', () => {
+            selectedExerciseId = ex.id;
+            selectedRestSec = ex.defaultRest || 90;
+            currentSetIsWarmup = false;
+            renderWorkoutTab(true);
+          });
+          chipsEl.appendChild(chip);
+        });
+
+        if (!currentEx) {
+          document.getElementById('current-exercise-name').textContent = 'أضف تمرين من تبويب "جدولي"';
+          document.getElementById('current-exercise-last').textContent = '';
+          document.getElementById('set-progress-bars').innerHTML = '';
+          document.getElementById('current-sets-list').innerHTML = '';
+          lucide.createIcons();
+          return;
+        }
+
+        if (shouldAutoFill) {
+          autoFillInputsForExercise(currentEx.id);
+        }
+
+        const allExSets = state.draftSets[currentEx.id] || [];
+        const workingDone = allExSets.filter((s) => !s.isWarmup).length;
+        const targetSets = Number(currentEx.targetSets) || 4;
+        const isExDone = workingDone >= targetSets;
+
+        document.getElementById('current-exercise-name').textContent = currentEx.name;
+
+        const setBadge = document.getElementById('current-set-badge');
+        if (isExDone) {
+          setBadge.className = 'inline-flex items-center gap-1 text-[11px] font-extrabold bg-emerald-600 text-white px-2.5 py-0.5 rounded-full tabular-nums';
+          setBadge.textContent = `مكتمل (${workingDone} / ${targetSets}) ✓`;
+        } else {
+          setBadge.className = 'inline-flex items-center gap-1 text-[11px] font-extrabold bg-slate-950 text-white px-2.5 py-0.5 rounded-full tabular-nums';
+          setBadge.textContent = `المجموعة ${workingDone + 1} من ${targetSets}`;
+        }
+
+        // Visual Set Progress Bars
+        const barsEl = document.getElementById('set-progress-bars');
+        barsEl.innerHTML = '';
+        const barTotal = Math.max(targetSets, workingDone);
+        for (let i = 0; i < barTotal; i++) {
+          const bar = document.createElement('div');
+          const completed = i < workingDone;
+          const isCurrent = i === workingDone && !isExDone;
+          bar.className = `flex-1 h-2 rounded-full transition-all ${
+            completed ? 'bg-emerald-500' : isCurrent ? 'bg-slate-900' : 'bg-slate-200'
+          }`;
+          barsEl.appendChild(bar);
+        }
+
+        // Set type toggle UI
+        const btnWork = document.getElementById('btn-set-type-working');
+        const btnWarm = document.getElementById('btn-set-type-warmup');
+        if (currentSetIsWarmup) {
+          btnWarm.className = 'py-2 rounded-xl text-xs font-extrabold bg-amber-100 text-amber-900 shadow-xs transition';
+          btnWork.className = 'py-2 rounded-xl text-xs font-bold text-slate-500 transition';
+        } else {
+          btnWork.className = 'py-2 rounded-xl text-xs font-extrabold bg-white text-slate-950 shadow-xs transition';
+          btnWarm.className = 'py-2 rounded-xl text-xs font-bold text-slate-500 transition';
+        }
+
+        // CTA button text
+        document.getElementById('btn-log-set-label').textContent = currentSetIsWarmup
+          ? 'سجّل مجموعة تسخين (W) وابدأ الراحة'
+          : isExDone
+          ? `إضافة مجموعة إضافية (#${workingDone + 1}) وابدأ الراحة`
+          : `سجّل المجموعة ${workingDone + 1} من ${targetSets} وابدأ الراحة`;
+
+        // Exercise Note value
+        const noteInp = document.getElementById('input-exercise-note');
+        noteInp.value = state.exerciseNotes[currentEx.id] || '';
+
+        const hist = getExerciseHistory(currentEx.id);
+        const lastSession = hist.length > 0 ? hist[hist.length - 1] : null;
+        if (lastSession) {
+          document.getElementById('current-exercise-last').textContent = `آخر أداء: ${lastSession.bestSet.weight} كجم × ${lastSession.bestSet.reps} عدة (1RM: ${lastSession.max1RM})`;
+        } else {
+          document.getElementById('current-exercise-last').textContent = 'أول مرة تسجّل التمرين ده — حدد وزنك وابدأ!';
+        }
+
+        const prWeight = getExerciseMaxWeight(currentEx.id);
+        const prBadge = document.getElementById('current-exercise-pr-badge');
+        if (prWeight > 0) {
+          prBadge.classList.remove('hidden');
+          document.getElementById('current-exercise-pr-text').textContent = `PR: ${prWeight} كجم`;
+        } else {
+          prBadge.classList.add('hidden');
+        }
+
+        // Rest presets visual
+        document.getElementById('selected-rest-label').textContent =
+          selectedRestSec >= 120 ? `${selectedRestSec / 60} دقائق` : `${selectedRestSec} ثانية`;
+        document.querySelectorAll('.rest-preset-btn').forEach((btn) => {
+          const val = Number(btn.getAttribute('data-rest'));
+          if (val === selectedRestSec) {
+            btn.className = 'rest-preset-btn py-2 rounded-xl text-xs font-extrabold border border-slate-950 bg-slate-950 text-white active:scale-95 transition';
+          } else {
+            btn.className = 'rest-preset-btn py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 active:scale-95 transition';
+          }
+        });
+
+        // Logged Sets List
+        const setsList = document.getElementById('current-sets-list');
+        setsList.innerHTML = '';
+        if (allExSets.length === 0) {
+          setsList.innerHTML = `<p class="text-xs text-slate-400 text-center py-3.5 bg-slate-50 rounded-xl border border-dashed border-slate-200">المطلوب اليوم ${targetSets} مجاميع فعلية — ابدأ بالتسخين أو المجموعة الأولى</p>`;
+        } else {
+          let workingNum = 0;
+          allExSets.forEach((s, idx) => {
+            if (!s.isWarmup) workingNum++;
+            const row = document.createElement('div');
+            row.className = `flex items-center justify-between rounded-xl px-3.5 py-2.5 border ${
+              s.isWarmup ? 'bg-amber-50/60 border-amber-200/70' : 'bg-slate-50 border-slate-200/70'
+            }`;
+            row.innerHTML = `
+              <div class="flex items-center gap-2.5">
+                <span class="w-6 h-6 rounded-lg text-xs font-extrabold flex items-center justify-center tabular-nums ${
+                  s.isWarmup ? 'bg-amber-200 text-amber-900' : 'bg-emerald-600 text-white'
+                }">${s.isWarmup ? 'W' : workingNum}</span>
+                <span class="text-sm font-black text-slate-900 tabular-nums">${s.weight} كجم × ${s.reps} عدة</span>
+                ${s.isWarmup ? '<span class="text-[10px] font-bold text-amber-700">تسخين</span>' : ''}
+                ${s.isPR ? '<span class="text-[10px] font-extrabold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md">PR جديد 🏆</span>' : ''}
+              </div>
+              <button type="button" class="text-slate-400 hover:text-red-500 p-1" aria-label="حذف المجموعة">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            `;
+            row.querySelector('button').addEventListener('click', () => {
+              state.draftSets[currentEx.id].splice(idx, 1);
+              saveState();
+              renderWorkoutTab(false);
+            });
+            setsList.appendChild(row);
+          });
+        }
+
+        lucide.createIcons();
+      }
+
+      function renderRecoveryChecklist() {
+        const el = document.getElementById('recovery-checklist');
+        el.innerHTML = '';
+        state.recoveryItems.forEach((item) => {
+          const checked = state.draftRecoveryChecked.includes(item);
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = `w-full flex items-center justify-between p-3.5 rounded-2xl border text-right transition active:scale-[0.99] ${
+            checked
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+              : 'bg-slate-50 border-slate-200 text-slate-700'
+          }`;
+          row.innerHTML = `
+            <span class="text-sm font-extrabold">${item}</span>
+            <span class="w-6 h-6 rounded-lg flex items-center justify-center ${checked ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-300'}">
+              ${checked ? '<i data-lucide="check" class="w-4 h-4"></i>' : ''}
+            </span>
+          `;
+          row.addEventListener('click', () => {
+            const i = state.draftRecoveryChecked.indexOf(item);
+            if (i >= 0) state.draftRecoveryChecked.splice(i, 1);
+            else state.draftRecoveryChecked.push(item);
+            saveState();
+            renderWorkoutTab(false);
+          });
+          el.appendChild(row);
+        });
+      }
+
+      // Render Tab 2: Streak & Private Habits Calendar
+      function renderStreakTab() {
+        const streakInfo = calculateStreak();
+        document.getElementById('streak-big-number').textContent = streakInfo.current;
+        document.getElementById('streak-best-label').textContent = `أطول ستريك: ${streakInfo.best}`;
+
+        const strip = document.getElementById('week-streak-strip');
+        strip.innerHTML = '';
+        const dayNames = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setHours(12, 0, 0, 0);
+          d.setDate(d.getDate() - i);
+          const key = formatDateKey(d);
+          const entry = state.activityLog[key];
+          const isToday = i === 0;
+
+          const cell = document.createElement('button');
+          cell.type = 'button';
+          let bgClass = 'bg-slate-50 border-slate-200 text-slate-400';
+          let iconHtml = '<span class="text-[11px] font-bold">—</span>';
+
+          if (entry) {
+            if (entry.type === 'workout') {
+              bgClass = 'bg-slate-950 border-slate-950 text-white';
+              iconHtml = '<i data-lucide="dumbbell" class="w-3.5 h-3.5 text-emerald-400"></i>';
+            } else if (entry.type === 'recovery') {
+              bgClass = 'bg-emerald-50 border-emerald-300 text-emerald-700';
+              iconHtml = '<i data-lucide="footprints" class="w-3.5 h-3.5"></i>';
+            } else if (entry.type === 'restored') {
+              bgClass = 'bg-amber-50 border-amber-300 text-amber-700';
+              iconHtml = '<i data-lucide="shield-check" class="w-3.5 h-3.5"></i>';
+            }
+          } else if (isToday) {
+            bgClass = 'bg-white border-2 border-dashed border-slate-400 text-slate-700';
+            iconHtml = '<span class="text-[10px] font-extrabold">اليوم</span>';
+          }
+
+          cell.className = `flex flex-col items-center justify-center py-2.5 px-1 rounded-2xl border transition active:scale-95 ${bgClass}`;
+          cell.innerHTML = `
+            <span class="text-[10px] font-bold mb-1 opacity-80">${dayNames[d.getDay()]}</span>
+            <div class="h-5 flex items-center justify-center">${iconHtml}</div>
+          `;
+
+          if (!entry && !isToday) {
+            cell.addEventListener('click', () => promptRestoreDay(key));
+          }
+          strip.appendChild(cell);
+        }
+
+        const used = getRestoresUsedThisMonth();
+        const remaining = Math.max(0, 5 - used);
+        document.getElementById('restores-remaining-text').textContent = `${remaining} / 5`;
+
+        const dotsEl = document.getElementById('restores-dots');
+        dotsEl.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+          const filled = i < remaining;
+          const dot = document.createElement('div');
+          dot.className = `flex-1 h-2.5 rounded-full transition ${filled ? 'bg-slate-950' : 'bg-slate-200'}`;
+          dotsEl.appendChild(dot);
+        }
+
+        const yesterdayKey = getDateOffsetKey(1);
+        const yesterdayDone = Boolean(state.activityLog[yesterdayKey]);
+        const restoreBtn = document.getElementById('btn-restore-yesterday');
+        const restoreLabel = document.getElementById('btn-restore-label');
+        if (yesterdayDone) {
+          restoreLabel.textContent = 'أمس متسجل بالفعل ✓ (اضغط على أي يوم فائت فوق لاسترجاعه)';
+          restoreBtn.disabled = true;
+          restoreBtn.classList.add('opacity-50');
+        } else if (remaining === 0) {
+          restoreLabel.textContent = 'استخدمت كل محاولات الاسترجاع (5/5) هذا الشهر';
+          restoreBtn.disabled = true;
+          restoreBtn.classList.add('opacity-50');
+        } else {
+          restoreLabel.textContent = 'استرجاع ستريك أمس (Restore)';
+          restoreBtn.disabled = false;
+          restoreBtn.classList.remove('opacity-50');
+        }
+
+        renderHabitCalendar();
+        lucide.createIcons();
+      }
+
+      function promptRestoreDay(dateKey) {
+        const used = getRestoresUsedThisMonth();
+        if (used >= 5) {
+          showToast('خلصت الـ 5 محاولات استرجاع للشهر ده');
+          return;
+        }
+        openModal(
+          'استرجاع الستريك (Restore)',
+          `<p class="text-sm text-slate-600 leading-relaxed">هتستخدم <strong>1 محاولة</strong> من محاولات الشهر (المتبقي حالياً ${5 - used} من 5) لاسترجاع يوم <strong>${dateKey}</strong> والحفاظ على الستريك؟</p>`,
+          [
+            {
+              label: 'تأكيد الاسترجاع',
+              className: 'flex-1 py-2.5 rounded-xl bg-slate-950 text-white text-xs font-extrabold',
+              onClick: () => {
+                const mk = getMonthKey(new Date());
+                state.monthlyRestores[mk] = (state.monthlyRestores[mk] || 0) + 1;
+                state.activityLog[dateKey] = { type: 'restored', ts: Date.now() };
+                saveState();
+                closeModal();
+                renderHeader();
+                renderStreakTab();
+                showToast('تم استرجاع الستريك بنجاح 🛡️');
+              }
+            },
+            {
+              label: 'إلغاء',
+              className: 'px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold',
+              onClick: closeModal
+            }
+          ]
+        );
+      }
+
+      function countRedDaysInMonth(year, month) {
+        const prefix = `${year}-${String(month + 1).padStart(2, '0')}-`;
+        return Object.keys(state.habitRedDays).filter((k) => k.startsWith(prefix) && state.habitRedDays[k]).length;
+      }
+
+      function renderHabitCalendar() {
+        const todayKey = getTodayKey();
+        const isTodayRed = Boolean(state.habitRedDays[todayKey]);
+
+        const btnToday = document.getElementById('btn-toggle-today-red');
+        const dotToday = document.getElementById('today-red-dot');
+        const textToday = document.getElementById('today-red-text');
+
+        if (isTodayRed) {
+          btnToday.className = 'w-full min-h-[48px] rounded-2xl border-2 border-red-500 bg-red-50 text-red-700 font-extrabold text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]';
+          dotToday.className = 'w-3 h-3 rounded-full bg-red-600';
+          textToday.textContent = 'اليوم مُعلّم بالأحمر (اضغط لإلغاء العلامة)';
+        } else {
+          btnToday.className = 'w-full min-h-[48px] rounded-2xl border-2 border-slate-200 bg-white hover:border-red-300 text-slate-800 font-extrabold text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]';
+          dotToday.className = 'w-3 h-3 rounded-full bg-red-500';
+          textToday.textContent = 'تعليم اليوم باللون الأحمر';
+        }
+
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        document.getElementById('cal-month-title').textContent = `${monthNames[calMonth]} ${calYear}`;
+
+        // Month-over-Month Comparison
+        const curRed = countRedDaysInMonth(calYear, calMonth);
+        const prevM = calMonth === 0 ? 11 : calMonth - 1;
+        const prevY = calMonth === 0 ? calYear - 1 : calYear;
+        const prevRed = countRedDaysInMonth(prevY, prevM);
+
+        document.getElementById('cal-cur-red-count').textContent = `${curRed} أحمر`;
+        document.getElementById('cal-prev-red-count').textContent = `${prevRed} أحمر`;
+
+        const trendEl = document.getElementById('cal-month-trend');
+        const diff = prevRed - curRed;
+        if (diff > 0) {
+          trendEl.className = 'text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800';
+          trendEl.textContent = `تحسن بـ ${diff} أيام ↓`;
+        } else if (diff < 0) {
+          trendEl.className = 'text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-red-100 text-red-700';
+          trendEl.textContent = `زيادة ${Math.abs(diff)} أيام ↑`;
+        } else {
+          trendEl.className = 'text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-slate-200/70 text-slate-700';
+          trendEl.textContent = 'نفس المعدل';
+        }
+
+        const firstDay = new Date(calYear, calMonth, 1);
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+        const startOffset = (firstDay.getDay() + 1) % 7;
+
+        const grid = document.getElementById('habit-calendar-grid');
+        grid.innerHTML = '';
+
+        for (let i = 0; i < startOffset; i++) {
+          const empty = document.createElement('div');
+          empty.className = 'h-10';
+          grid.appendChild(empty);
+        }
+
+        const todayObj = new Date();
+        let redCountThisMonth = 0;
+        let elapsedDaysThisMonth = 0;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dt = new Date(calYear, calMonth, day);
+          const key = formatDateKey(dt);
+          const isRed = Boolean(state.habitRedDays[key]);
+          const isTodayCell = key === todayKey;
+          const isFuture = dt > todayObj && !isTodayCell;
+
+          if (!isFuture) {
+            elapsedDaysThisMonth++;
+            if (isRed) redCountThisMonth++;
+          }
+
+          const cell = document.createElement('button');
+          cell.type = 'button';
+          cell.disabled = isFuture;
+
+          let cls = 'h-10 rounded-xl flex items-center justify-center text-xs font-extrabold transition relative ';
+          if (isRed) {
+            cls += 'bg-red-500 text-white shadow-sm active:scale-95';
+          } else if (isTodayCell) {
+            cls += 'bg-slate-100 text-slate-950 border-2 border-slate-950 active:scale-95';
+          } else if (isFuture) {
+            cls += 'bg-white text-slate-300 cursor-default';
+          } else {
+            cls += 'bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95';
+          }
+
+          cell.className = cls;
+          cell.textContent = day;
+          if (!isFuture) {
+            cell.addEventListener('click', () => {
+              if (state.habitRedDays[key]) {
+                delete state.habitRedDays[key];
+              } else {
+                state.habitRedDays[key] = true;
+              }
+              saveState();
+              renderHabitCalendar();
+            });
+          }
+          grid.appendChild(cell);
+        }
+
+        const cleanDays = Math.max(0, elapsedDaysThisMonth - redCountThisMonth);
+        document.getElementById('clean-days-badge').textContent = `${cleanDays} يوم نظيف`;
+      }
+
+      // Render Tab 3: Progress
+      function renderProgressTab() {
+        const lvl = getLevelInfo(state.xp);
+        document.getElementById('progress-level-title').textContent = `المستوى ${lvl.level} — ${lvl.title}`;
+        document.getElementById('progress-total-xp').textContent = state.xp;
+        document.getElementById('progress-xp-fraction').textContent = `${lvl.currentInLevel} / ${lvl.xpPerLevel} XP`;
+        document.getElementById('progress-xp-bar').style.width = lvl.pct + '%';
+
+        let workoutsCount = 0;
+        let totalWorkingSets = 0;
+        let maxSessionVol = 0;
+
+        Object.values(state.activityLog).forEach((entry) => {
+          if (entry && entry.type === 'workout' && Array.isArray(entry.sets)) {
+            workoutsCount++;
+            const working = entry.sets.filter((s) => !s.isWarmup);
+            totalWorkingSets += working.length;
+            const vol = working.reduce((acc, s) => acc + (Number(s.weight) || 0) * (Number(s.reps) || 0), 0);
+            if (vol > maxSessionVol) maxSessionVol = vol;
+          }
+        });
+
+        document.getElementById('kpi-workouts').textContent = workoutsCount;
+        document.getElementById('kpi-sets').textContent = totalWorkingSets;
+        document.getElementById('kpi-volume').textContent = Math.round(maxSessionVol).toLocaleString('en-US');
+
+        // Metric toggle UI
+        document.querySelectorAll('.chart-metric-btn').forEach((btn) => {
+          const isCur = btn.getAttribute('data-metric') === chartMetricMode;
+          btn.className = isCur
+            ? 'chart-metric-btn py-1.5 rounded-lg text-[11px] font-extrabold bg-white text-slate-950 shadow-xs transition'
+            : 'chart-metric-btn py-1.5 rounded-lg text-[11px] font-bold text-slate-500 transition';
+        });
+
+        const select = document.getElementById('progress-exercise-select');
+        const prevVal = select.value;
+        select.innerHTML = '';
+        const allExercises = [];
+        state.splits.forEach((sp) => {
+          sp.exercises.forEach((ex) => {
+            allExercises.push({ id: ex.id, name: `${ex.name} (${sp.name})` });
+          });
+        });
+
+        allExercises.forEach((ex) => {
+          const opt = document.createElement('option');
+          opt.value = ex.id;
+          opt.textContent = ex.name;
+          select.appendChild(opt);
+        });
+
+        if (prevVal && allExercises.some((e) => e.id === prevVal)) {
+          select.value = prevVal;
+        }
+
+        renderExerciseChart(select.value);
+        lucide.createIcons();
+      }
+
+      function renderExerciseChart(exerciseId) {
+        const hist = getExerciseHistory(exerciseId);
+        const wrapper = document.getElementById('chart-wrapper');
+        const empty = document.getElementById('chart-empty-state');
+        const prPill = document.getElementById('chart-pr-pill');
+        const listEl = document.getElementById('exercise-history-list');
+
+        if (weightChartInstance) {
+          weightChartInstance.destroy();
+          weightChartInstance = null;
+        }
+
+        if (!exerciseId || hist.length === 0) {
+          wrapper.classList.add('hidden');
+          empty.classList.remove('hidden');
+          prPill.classList.add('hidden');
+          listEl.innerHTML = '';
+          return;
+        }
+
+        wrapper.classList.remove('hidden');
+        empty.classList.add('hidden');
+
+        let datasetLabel = 'القوة التقديرية 1RM (كجم)';
+        let dataVals = hist.map((h) => h.max1RM);
+        let bestVal = Math.max(...dataVals);
+        let pillPrefix = 'أعلى 1RM';
+
+        if (chartMetricMode === 'max') {
+          datasetLabel = 'أعلى وزن (كجم)';
+          dataVals = hist.map((h) => h.maxWeight);
+          bestVal = Math.max(...dataVals);
+          pillPrefix = 'أعلى وزن';
+        } else if (chartMetricMode === 'volume') {
+          datasetLabel = 'الحجم الكلي (كجم)';
+          dataVals = hist.map((h) => h.volume);
+          bestVal = Math.max(...dataVals);
+          pillPrefix = 'أعلى حجم';
+        }
+
+        prPill.textContent = `${pillPrefix}: ${bestVal.toLocaleString('en-US')} كجم`;
+        prPill.classList.remove('hidden');
+
+        const labels = hist.map((h) => h.dateKey.slice(5));
+        const ctx = document.getElementById('weight-chart').getContext('2d');
+        weightChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: datasetLabel,
+                data: dataVals,
+                borderColor: '#0F172A',
+                backgroundColor: 'rgba(15, 23, 42, 0.08)',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                fill: true,
+                tension: 0.3
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                beginAtZero: false,
+                grid: { color: '#F1F5F9' },
+                ticks: { color: '#64748B', font: { size: 11 } }
+              },
+              x: {
+                grid: { display: false },
+                ticks: { color: '#64748B', font: { size: 11 } }
+              }
+            }
+          }
+        });
+
+        listEl.innerHTML = '';
+        hist
+          .slice()
+          .reverse()
+          .slice(0, 6)
+          .forEach((h) => {
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between bg-slate-50 rounded-xl px-3 py-2';
+            const setsSummary = h.sets.map((s) => `${s.weight}×${s.reps}`).join(' ، ');
+            row.innerHTML = `
+              <div>
+                <span class="text-xs font-bold text-slate-500 tabular-nums">${h.dateKey}</span>
+                <span class="text-[10px] font-bold text-emerald-700 mr-1.5">1RM: ${h.max1RM}</span>
+              </div>
+              <span class="text-xs font-extrabold text-slate-900 tabular-nums">${setsSummary}</span>
+            `;
+            listEl.appendChild(row);
+          });
+      }
+
+      // Render Tab 4: Split Editor + Schedule Mode + Backup Status
+      function renderSplitTab() {
+        const rotBtn = document.getElementById('mode-btn-rotation');
+        const weekBtn = document.getElementById('mode-btn-weekly');
+        const descEl = document.getElementById('schedule-mode-desc');
+        const weeklyCont = document.getElementById('weekly-mapper-container');
+
+        if (state.scheduleMode === 'rotation') {
+          rotBtn.className = 'py-2 rounded-xl text-xs font-extrabold bg-white text-slate-950 shadow-xs transition';
+          weekBtn.className = 'py-2 rounded-xl text-xs font-bold text-slate-500 transition';
+          descEl.textContent = 'نظام الترتيب التلقائي: التطبيق يشوف آخر تمرينة خلصتها ويفتحلك التمرينة اللي عليها الدور تلقائياً (مثالي للجدول المتغير عشان لو أخدت يوم راحة ترتيبك ميبوظش).';
+          weeklyCont.classList.add('hidden');
+        } else {
+          weekBtn.className = 'py-2 rounded-xl text-xs font-extrabold bg-white text-slate-950 shadow-xs transition';
+          rotBtn.className = 'py-2 rounded-xl text-xs font-bold text-slate-500 transition';
+          descEl.textContent = 'نظام أيام الأسبوع: اربط كل يوم من السبت للجمعة بتمرينة محددة أو يوم راحة نشطة، والتطبيق هيفتحلك يوم النهاردة أوتوماتيك.';
+          weeklyCont.classList.remove('hidden');
+
+          weeklyCont.innerHTML = '';
+          WEEKDAYS_AR.forEach((dayObj) => {
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between gap-2 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2';
+            const sel = document.createElement('select');
+            sel.className = 'h-9 px-2.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900';
+
+            state.splits.forEach((sp) => {
+              const opt = document.createElement('option');
+              opt.value = sp.id;
+              opt.textContent = sp.name;
+              sel.appendChild(opt);
+            });
+            const recOpt = document.createElement('option');
+            recOpt.value = 'recovery';
+            recOpt.textContent = 'يوم راحة نشطة';
+            sel.appendChild(recOpt);
+
+            sel.value = state.weeklySchedule[dayObj.idx] || (state.splits[0] ? state.splits[0].id : 'recovery');
+            sel.addEventListener('change', (e) => {
+              state.weeklySchedule[dayObj.idx] = e.target.value;
+              saveState();
+              const updated = getSmartTodaySuggestion();
+              selectedDayId = updated.dayId;
+              selectedExerciseId = getFirstExerciseId(selectedDayId);
+              isManualOverride = false;
+              showToast(`تم تحديث يوم ${dayObj.label}`);
+            });
+
+            row.innerHTML = `<span class="text-xs font-extrabold text-slate-800">${dayObj.label}</span>`;
+            row.appendChild(sel);
+            weeklyCont.appendChild(row);
+          });
+        }
+
+        // Backup status indicator
+        const backupBadge = document.getElementById('backup-status-badge');
+        if (!state.lastBackupTs) {
+          backupBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/70';
+          backupBadge.textContent = 'لم يتم النسخ بعد';
+        } else {
+          const daysAgo = Math.floor((Date.now() - state.lastBackupTs) / 86400000);
+          if (daysAgo >= 7) {
+            backupBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200/70';
+            backupBadge.textContent = `آخر نسخة منذ ${daysAgo} يوم`;
+          } else {
+            backupBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70';
+            backupBadge.textContent = daysAgo === 0 ? 'محدّث اليوم ✓' : `منذ ${daysAgo} يوم ✓`;
+          }
+        }
+
+        const container = document.getElementById('split-editor-list');
+        container.innerHTML = '';
+
+        state.splits.forEach((sp, spIdx) => {
+          const totalSets = sp.exercises.reduce((acc, e) => acc + (Number(e.targetSets) || 4), 0);
+          const card = document.createElement('div');
+          card.className = 'pro-card rounded-3xl p-4 space-y-3';
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-black text-slate-950">${sp.name}</h3>
+                <p class="text-[11px] text-slate-400 font-semibold">${sp.exercises.length} تمارين • إجمالي ${totalSets} مجموعة</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="btn-add-ex px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-extrabold">+ تمرين</button>
+                ${state.splits.length > 1 ? '<button type="button" class="btn-del-day p-1.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' : ''}
+              </div>
+            </div>
+            <div class="ex-list space-y-2"></div>
+          `;
+
+          const exList = card.querySelector('.ex-list');
+          sp.exercises.forEach((ex, exIdx) => {
+            const tSets = Number(ex.targetSets) || 4;
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between gap-2 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5';
+            row.innerHTML = `
+              <div class="min-w-0">
+                <p class="text-xs font-extrabold text-slate-900 truncate">${ex.name}</p>
+                <p class="text-[10px] text-slate-400 font-semibold">راحة: ${ex.defaultRest || 90} ث</p>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" class="btn-sets-dec w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 font-black text-sm flex items-center justify-center">−</button>
+                <span class="text-xs font-black text-slate-900 w-12 text-center tabular-nums">${tSets} مج</span>
+                <button type="button" class="btn-sets-inc w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 font-black text-sm flex items-center justify-center">+</button>
+                <button type="button" class="btn-ex-del text-slate-400 hover:text-red-500 p-1 mr-1" aria-label="حذف التمرين">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+            `;
+            row.querySelector('.btn-sets-dec').addEventListener('click', () => {
+              ex.targetSets = Math.max(1, (Number(ex.targetSets) || 4) - 1);
+              saveState();
+              renderSplitTab();
+              renderWorkoutTab(false);
+            });
+            row.querySelector('.btn-sets-inc').addEventListener('click', () => {
+              ex.targetSets = Math.min(12, (Number(ex.targetSets) || 4) + 1);
+              saveState();
+              renderSplitTab();
+              renderWorkoutTab(false);
+            });
+            row.querySelector('.btn-ex-del').addEventListener('click', () => {
+              sp.exercises.splice(exIdx, 1);
+              saveState();
+              renderSplitTab();
+              renderWorkoutTab(false);
+            });
+            exList.appendChild(row);
+          });
+
+          card.querySelector('.btn-add-ex').addEventListener('click', () => {
+            openModal(
+              `إضافة تمرين لـ ${sp.name}`,
+              `
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">اسم التمرين</label>
+                    <input id="modal-ex-name" type="text" placeholder="مثال: Pull Ups" class="w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-900" />
+                  </div>
+                  <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label class="block text-xs font-bold text-slate-600 mb-1">عدد المجاميع</label>
+                      <input id="modal-ex-sets" type="number" value="4" min="1" max="12" class="w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-slate-900" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-slate-600 mb-1">الراحة (ثانية)</label>
+                      <input id="modal-ex-rest" type="number" value="90" min="15" step="15" class="w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-slate-900" />
+                    </div>
+                  </div>
+                </div>
+              `,
+              [
+                {
+                  label: 'حفظ التمرين',
+                  className: 'flex-1 py-2.5 rounded-xl bg-slate-950 text-white text-xs font-extrabold',
+                  onClick: () => {
+                    const name = document.getElementById('modal-ex-name').value.trim();
+                    const targetSets = Math.max(1, Math.min(12, parseInt(document.getElementById('modal-ex-sets').value, 10) || 4));
+                    const rest = Math.max(15, Number(document.getElementById('modal-ex-rest').value) || 90);
+                    if (!name) return;
+                    sp.exercises.push({ id: 'ex_' + Date.now(), name, targetSets, defaultRest: rest });
+                    saveState();
+                    closeModal();
+                    renderSplitTab();
+                    renderWorkoutTab(false);
+                    showToast('تمت إضافة التمرين');
+                  }
+                },
+                {
+                  label: 'إلغاء',
+                  className: 'px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold',
+                  onClick: closeModal
+                }
+              ]
+            );
+          });
+
+          const delDayBtn = card.querySelector('.btn-del-day');
+          if (delDayBtn) {
+            delDayBtn.addEventListener('click', () => {
+              state.splits.splice(spIdx, 1);
+              if (selectedDayId === sp.id) {
+                selectedDayId = state.splits[0] ? state.splits[0].id : 'recovery';
+              }
+              saveState();
+              renderSplitTab();
+              renderWorkoutTab(false);
+            });
+          }
+
+          container.appendChild(card);
+        });
+
+        const recList = document.getElementById('recovery-editor-list');
+        recList.innerHTML = '';
+        state.recoveryItems.forEach((item, idx) => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between bg-slate-50 rounded-xl px-3 py-2';
+          row.innerHTML = `
+            <span class="text-xs font-bold text-slate-700">${item}</span>
+            <button type="button" class="text-slate-400 hover:text-red-500 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+          `;
+          row.querySelector('button').addEventListener('click', () => {
+            state.recoveryItems.splice(idx, 1);
+            saveState();
+            renderSplitTab();
+          });
+          recList.appendChild(row);
+        });
+
+        lucide.createIcons();
+      }
+
+      // Tab Switching
+      function switchTab(tabName) {
+        activeTab = tabName;
+        ['workout', 'streak', 'progress', 'split'].forEach((t) => {
+          document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tabName);
+        });
+        document.querySelectorAll('.nav-tab-btn').forEach((btn) => {
+          const isCurrent = btn.getAttribute('data-tab') === tabName;
+          btn.className = isCurrent
+            ? 'nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-950 bg-slate-100 font-extrabold transition'
+            : 'nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400 font-semibold transition';
+        });
+
+        if (tabName === 'workout') renderWorkoutTab(true);
+        if (tabName === 'streak') renderStreakTab();
+        if (tabName === 'progress') renderProgressTab();
+        if (tabName === 'split') renderSplitTab();
+      }
+
+      // Wire Up Event Listeners
+      document.querySelectorAll('.nav-tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+      });
+
+      document.getElementById('header-streak-pill').addEventListener('click', () => switchTab('streak'));
+      document.getElementById('header-level-pill').addEventListener('click', () => switchTab('progress'));
+      document.getElementById('modal-close').addEventListener('click', closeModal);
+      document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-backdrop') closeModal();
+      });
+
+      // Set Type Toggle (Working vs Warm-up)
+      document.getElementById('btn-set-type-working').addEventListener('click', () => {
+        currentSetIsWarmup = false;
+        renderWorkoutTab(false);
+      });
+      document.getElementById('btn-set-type-warmup').addEventListener('click', () => {
+        currentSetIsWarmup = true;
+        renderWorkoutTab(false);
+      });
+
+      // Persistent Exercise Note Input
+      document.getElementById('input-exercise-note').addEventListener('input', (e) => {
+        if (!selectedExerciseId) return;
+        state.exerciseNotes[selectedExerciseId] = e.target.value;
+        saveState();
+      });
+
+      // Chart Metric Switcher
+      document.querySelectorAll('.chart-metric-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          chartMetricMode = btn.getAttribute('data-metric');
+          renderProgressTab();
+        });
+      });
+
+      // Schedule Mode Toggle
+      document.getElementById('mode-btn-rotation').addEventListener('click', () => {
+        state.scheduleMode = 'rotation';
+        saveState();
+        const rec = getSmartTodaySuggestion();
+        selectedDayId = rec.dayId;
+        selectedExerciseId = getFirstExerciseId(selectedDayId);
+        isManualOverride = false;
+        renderSplitTab();
+        showToast('تم تفعيل الترتيب التلقائي');
+      });
+
+      document.getElementById('mode-btn-weekly').addEventListener('click', () => {
+        state.scheduleMode = 'weekly';
+        saveState();
+        const rec = getSmartTodaySuggestion();
+        selectedDayId = rec.dayId;
+        selectedExerciseId = getFirstExerciseId(selectedDayId);
+        isManualOverride = false;
+        renderSplitTab();
+        showToast('تم تفعيل جدول أيام الأسبوع');
+      });
+
+      // Adjust target sets mid-workout
+      document.getElementById('btn-adjust-target-sets').addEventListener('click', () => {
+        const currentSplit = state.splits.find((s) => s.id === selectedDayId);
+        const currentEx = currentSplit ? currentSplit.exercises.find((e) => e.id === selectedExerciseId) : null;
+        if (!currentEx) return;
+        openModal(
+          `تعديل عدد المجاميع — ${currentEx.name}`,
+          `
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">عدد المجاميع المستهدف</label>
+              <input id="modal-edit-target-sets" type="number" min="1" max="12" value="${currentEx.targetSets || 4}" class="w-full h-12 px-3 rounded-xl bg-slate-50 border border-slate-200 text-lg font-black text-center focus:outline-none focus:ring-2 focus:ring-slate-900" />
+            </div>
+          `,
+          [
+            {
+              label: 'حفظ',
+              className: 'flex-1 py-2.5 rounded-xl bg-slate-950 text-white text-xs font-extrabold',
+              onClick: () => {
+                const val = Math.max(1, Math.min(12, parseInt(document.getElementById('modal-edit-target-sets').value, 10) || 4));
+                currentEx.targetSets = val;
+                saveState();
+                closeModal();
+                renderWorkoutTab(false);
+                showToast(`تم تعديل المجاميع إلى ${val}`);
+              }
+            },
+            {
+              label: 'إلغاء',
+              className: 'px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold',
+              onClick: closeModal
+            }
+          ]
+        );
+      });
+
+      // Sound Toggle
+      document.getElementById('btn-sound-toggle').addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        saveState();
+        renderHeader();
+        lucide.createIcons();
+      });
+
+      // Weight & Reps Steppers
+      document.getElementById('btn-weight-minus').addEventListener('click', () => {
+        const inp = document.getElementById('input-weight');
+        inp.value = Math.max(0, (parseFloat(inp.value) || 0) - 2.5);
+      });
+      document.getElementById('btn-weight-plus').addEventListener('click', () => {
+        const inp = document.getElementById('input-weight');
+        inp.value = (parseFloat(inp.value) || 0) + 2.5;
+      });
+      document.getElementById('btn-reps-minus').addEventListener('click', () => {
+        const inp = document.getElementById('input-reps');
+        inp.value = Math.max(1, (parseInt(inp.value, 10) || 1) - 1);
+      });
+      document.getElementById('btn-reps-plus').addEventListener('click', () => {
+        const inp = document.getElementById('input-reps');
+        inp.value = (parseInt(inp.value, 10) || 0) + 1;
+      });
+
+      // Rest Presets
+      document.querySelectorAll('.rest-preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          selectedRestSec = Number(btn.getAttribute('data-rest'));
+          renderWorkoutTab(false);
+        });
+      });
+
+      // Timer Controls (Timestamp-aware)
+      document.getElementById('timer-minus-15').addEventListener('click', () => {
+        if (timerPaused) {
+          timerRemainingSec = Math.max(1, timerRemainingSec - 15);
+        } else {
+          timerEndTimeMs = Math.max(Date.now() + 1000, timerEndTimeMs - 15000);
+          timerRemainingSec = Math.ceil((timerEndTimeMs - Date.now()) / 1000);
+        }
+        updateTimerUI();
+      });
+      document.getElementById('timer-plus-15').addEventListener('click', () => {
+        if (timerPaused) {
+          timerRemainingSec += 15;
+          if (timerRemainingSec > timerTotalSec) timerTotalSec = timerRemainingSec;
+        } else {
+          timerEndTimeMs += 15000;
+          timerRemainingSec = Math.ceil((timerEndTimeMs - Date.now()) / 1000);
+          if (timerRemainingSec > timerTotalSec) timerTotalSec = timerRemainingSec;
+        }
+        updateTimerUI();
+      });
+      document.getElementById('timer-toggle-btn').addEventListener('click', () => {
+        if (!timerPaused) {
+          timerPaused = true;
+          timerRemainingSec = Math.max(1, Math.ceil((timerEndTimeMs - Date.now()) / 1000));
+        } else {
+          timerPaused = false;
+          timerEndTimeMs = Date.now() + timerRemainingSec * 1000;
+        }
+        updateTimerUI();
+      });
+      document.getElementById('timer-skip-btn').addEventListener('click', stopRestTimer);
+
+      // Log Set & Start Rest Timer
+      document.getElementById('btn-log-set').addEventListener('click', () => {
+        const currentSplit = state.splits.find((s) => s.id === selectedDayId);
+        if (!currentSplit) return;
+        const currentEx = currentSplit.exercises.find((e) => e.id === selectedExerciseId);
+        if (!currentEx) return;
+
+        const weight = parseFloat(document.getElementById('input-weight').value);
+        const reps = parseInt(document.getElementById('input-reps').value, 10);
+        if (isNaN(weight) || weight < 0 || isNaN(reps) || reps < 1) {
+          showToast('أدخل وزن وعدات صحيحة');
+          return;
+        }
+
+        const isWarmup = currentSetIsWarmup;
+        let isPR = false;
+        if (!isWarmup) {
+          const prevBest1RM = getExercisePR1RM(currentEx.id);
+          const cur1RM = calcEpley1RM(weight, reps);
+          isPR = prevBest1RM > 0 && cur1RM > prevBest1RM;
+        }
+
+        if (!state.draftSets[currentEx.id]) state.draftSets[currentEx.id] = [];
+        state.draftSets[currentEx.id].push({ weight, reps, isWarmup, isPR, ts: Date.now() });
+
+        const targetSets = Number(currentEx.targetSets) || 4;
+        const workingDone = state.draftSets[currentEx.id].filter((s) => !s.isWarmup).length;
+
+        if (!isWarmup) {
+          state.xp += isPR ? 40 : 10;
+        }
+        // Automatically switch back to working set after logging a warm-up
+        if (isWarmup) currentSetIsWarmup = false;
+
+        saveState();
+        renderHeader();
+        renderWorkoutTab(false);
+        startRestTimer(selectedRestSec);
+
+        if (isWarmup) {
+          showToast('تم تسجيل التسخين (W) — جاهز للمجاميع الفعلية');
+        } else if (isPR) {
+          showToast('رقم قياسي جديد في القوة! 🏆 (+40 XP) — ابدأ راحتك');
+        } else if (workingDone === targetSets) {
+          showToast(`عاش! خلصت كل مجاميع ${currentEx.name} (${targetSets}/${targetSets}) ✓`);
+        } else {
+          showToast(`تم تسجيل المجموعة ${workingDone} من ${targetSets} (+10 XP) — ابدأ راحتك`);
+        }
+      });
+
+      // Next Exercise button
+      document.getElementById('btn-next-exercise').addEventListener('click', () => {
+        const currentSplit = state.splits.find((s) => s.id === selectedDayId);
+        if (!currentSplit || currentSplit.exercises.length === 0) return;
+        const idx = currentSplit.exercises.findIndex((e) => e.id === selectedExerciseId);
+        const nextEx = currentSplit.exercises[(idx + 1) % currentSplit.exercises.length];
+        selectedExerciseId = nextEx.id;
+        selectedRestSec = nextEx.defaultRest || 90;
+        currentSetIsWarmup = false;
+        renderWorkoutTab(true);
+      });
+
+      // Finish Workout
+      document.getElementById('btn-finish-workout').addEventListener('click', () => {
+        const currentSplit = state.splits.find((s) => s.id === selectedDayId);
+        if (!currentSplit) return;
+
+        const allLogged = [];
+        currentSplit.exercises.forEach((ex) => {
+          const sets = state.draftSets[ex.id] || [];
+          sets.forEach((s) => {
+            allLogged.push({
+              exerciseId: ex.id,
+              exerciseName: ex.name,
+              weight: s.weight,
+              reps: s.reps,
+              isWarmup: Boolean(s.isWarmup),
+              isPR: Boolean(s.isPR),
+              ts: s.ts
+            });
+          });
+        });
+
+        if (allLogged.length === 0) {
+          showToast('سجّل مجموعة واحدة على الأقل قبل إنهاء التمرينة');
+          return;
+        }
+
+        const todayKey = getTodayKey();
+        const existing = state.activityLog[todayKey];
+        const mergedSets = existing && existing.type === 'workout' && Array.isArray(existing.sets)
+          ? existing.sets.concat(allLogged)
+          : allLogged;
+
+        const alreadyCompletedToday = Boolean(existing && existing.type === 'workout');
+        state.activityLog[todayKey] = {
+          type: 'workout',
+          splitId: currentSplit.id,
+          splitName: currentSplit.name,
+          sets: mergedSets,
+          ts: Date.now()
+        };
+
+        currentSplit.exercises.forEach((ex) => {
+          delete state.draftSets[ex.id];
+        });
+
+        if (!alreadyCompletedToday) {
+          state.xp += 100;
+        }
+        stopRestTimer();
+        saveState();
+        renderHeader();
+        renderWorkoutTab(false);
+
+        const workingOnly = allLogged.filter((s) => !s.isWarmup);
+        const vol = Math.round(workingOnly.reduce((acc, s) => acc + s.weight * s.reps, 0));
+        openModal(
+          'عاش يا بطل! 💪',
+          `
+            <div class="text-center space-y-2 py-2">
+              <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                <i data-lucide="trophy" class="w-7 h-7"></i>
+              </div>
+              <p class="text-sm font-extrabold text-slate-900">خلصت تمرينة ${currentSplit.name}</p>
+              <p class="text-xs text-slate-500">${workingOnly.length} مجاميع فعلية • حجم الرفع ${vol.toLocaleString('en-US')} كجم</p>
+              ${!alreadyCompletedToday ? '<p class="text-xs font-extrabold text-emerald-600">+100 XP • الستريك مستمر 🔥</p>' : '<p class="text-xs font-bold text-slate-500">تمت إضافة المجاميع لسجل اليوم</p>'}
+            </div>
+          `,
+          [
+            {
+              label: 'شوف تطورك',
+              className: 'flex-1 py-2.5 rounded-xl bg-slate-950 text-white text-xs font-extrabold',
+              onClick: () => {
+                closeModal();
+                switchTab('progress');
+              }
+            },
+            {
+              label: 'تمام',
+              className: 'px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold',
+              onClick: closeModal
+            }
+          ]
+        );
+      });
+
+      // Complete Active Recovery
+      document.getElementById('btn-complete-recovery').addEventListener('click', () => {
+        if (state.draftRecoveryChecked.length === 0) {
+          showToast('علّم على نشاط واحد على الأقل عملته النهاردة');
+          return;
+        }
+        const todayKey = getTodayKey();
+        const alreadyDone = Boolean(state.activityLog[todayKey]);
+        state.activityLog[todayKey] = {
+          type: 'recovery',
+          recoveryDone: state.draftRecoveryChecked.slice(),
+          ts: Date.now()
+        };
+        if (!alreadyDone) state.xp += 40;
+        saveState();
+        renderHeader();
+        showToast('تم حفظ يوم الراحة النشطة والستريك مستمر 🔥');
+      });
+
+      // Streak Restore Yesterday button
+      document.getElementById('btn-restore-yesterday').addEventListener('click', () => {
+        promptRestoreDay(getDateOffsetKey(1));
+      });
+
+      // Habit Today Toggle & Month Nav
+      document.getElementById('btn-toggle-today-red').addEventListener('click', () => {
+        const key = getTodayKey();
+        if (state.habitRedDays[key]) {
+          delete state.habitRedDays[key];
+          showToast('تمت إزالة العلامة الحمراء لليوم');
+        } else {
+          state.habitRedDays[key] = true;
+          showToast('تم تعليم اليوم بالأحمر في التقويم');
+        }
+        saveState();
+        renderHabitCalendar();
+      });
+
+      document.getElementById('cal-prev-month').addEventListener('click', () => {
+        calMonth--;
+        if (calMonth < 0) {
+          calMonth = 11;
+          calYear--;
+        }
+        renderHabitCalendar();
+      });
+
+      document.getElementById('cal-next-month').addEventListener('click', () => {
+        calMonth++;
+        if (calMonth > 11) {
+          calMonth = 0;
+          calYear++;
+        }
+        renderHabitCalendar();
+      });
+
+      // Progress Exercise Dropdown
+      document.getElementById('progress-exercise-select').addEventListener('change', (e) => {
+        renderExerciseChart(e.target.value);
+      });
+
+      // Add New Split Day
+      document.getElementById('btn-add-day-modal').addEventListener('click', () => {
+        openModal(
+          'إضافة يوم تمرين جديد',
+          `
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">اسم اليوم</label>
+              <input id="modal-day-name" type="text" placeholder="مثال: كتف ودراع أو Push" class="w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-900" />
+            </div>
+          `,
+          [
+            {
+              label: 'إضافة اليوم',
+              className: 'flex-1 py-2.5 rounded-xl bg-slate-950 text-white text-xs font-extrabold',
+              onClick: () => {
+                const name = document.getElementById('modal-day-name').value.trim();
+                if (!name) return;
+                state.splits.push({ id: 'day_' + Date.now(), name, exercises: [] });
+                saveState();
+                closeModal();
+                renderSplitTab();
+                renderWorkoutTab(false);
+                showToast('تمت إضافة اليوم بنجاح');
+              }
+            },
+            {
+              label: 'إلغاء',
+              className: 'px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold',
+              onClick: closeModal
+            }
+          ]
+        );
+      });
+
+      // Add Recovery Activity Item
+      document.getElementById('btn-add-recovery-item').addEventListener('click', () => {
+        const inp = document.getElementById('input-new-recovery');
+        const val = inp.value.trim();
+        if (!val) return;
+        state.recoveryItems.push(val);
+        inp.value = '';
+        saveState();
+        renderSplitTab();
+        showToast('تمت إضافة نشاط الراحة');
+      });
+
+      // Export Backup JSON
+      document.getElementById('btn-export-data').addEventListener('click', () => {
+        try {
+          state.lastBackupTs = Date.now();
+          saveState();
+          renderSplitTab();
+          const dataStr = JSON.stringify(state, null, 2);
+          const blob = new Blob([dataStr], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `my-better-self-backup-${getTodayKey()}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('تم تحميل النسخة الاحتياطية ✓');
+        } catch (e) {
+          showToast('تعذّر تحميل الملف');
+        }
+      });
+
+      // Import Backup JSON
+      document.getElementById('input-import-data').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const imported = JSON.parse(ev.target.result);
+            if (!imported || !Array.isArray(imported.splits)) {
+              showToast('ملف النسخة الاحتياطية غير صالح');
+              return;
+            }
+            state = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), imported);
+            saveState();
+            const rec = getSmartTodaySuggestion();
+            selectedDayId = rec.dayId;
+            selectedExerciseId = getFirstExerciseId(selectedDayId);
+            isManualOverride = false;
+            renderHeader();
+            switchTab(activeTab);
+            showToast('تم استرجاع النسخة الاحتياطية بنجاح ✓');
+          } catch (err) {
+            showToast('حدث خطأ أثناء قراءة الملف');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      // Reset All Data Modal
+      document.getElementById('btn-reset-data-modal').addEventListener('click', () => {
+        openModal(
+          'مسح كل البيانات؟',
+          '<p class="text-sm text-slate-600 leading-relaxed">هيتم مسح كل التمارين والستريك والتقويم والرجوع للجدول الافتراضي. متأكد؟</p>',
+          [
+            {
+              label: 'نعم، امسح الكل',
+              className: 'flex-1 py-2.5 rounded-xl bg-red-600 text-white text-xs font-extrabold',
+              onClick: () => {
+                state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+                saveState();
+                const rec = getSmartTodaySuggestion();
+                selectedDayId = rec.dayId;
+                selectedExerciseId = getFirstExerciseId(selectedDayId);
+                isManualOverride = false;
+                closeModal();
+                renderHeader();
+                switchTab('workout');
+                showToast('تم تصفير البيانات');
+              }
+            },
+            {
+              label: 'إلغاء',
+              className: 'px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold',
+              onClick: closeModal
+            }
+          ]
+        );
+      });
+
+      // Initial Render
+      renderHeader();
+      switchTab('workout');
+    })();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>

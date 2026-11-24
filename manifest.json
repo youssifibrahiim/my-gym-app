@@ -1,0 +1,19 @@
+{
+  "name": "نسختي الأحسن",
+  "short_name": "نسختي الأحسن",
+  "description": "تتبع التمارين والأوزان وتايمر الراحة وستريك الالتزام أوفلاين",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230F172A'/%3E%3Cpath d='M52 108 L78 130 L132 58' stroke='%2310B981' stroke-width='16' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
